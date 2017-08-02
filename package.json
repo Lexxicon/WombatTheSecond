@@ -1,0 +1,17 @@
+{
+  "name": "wombat",
+  "version": "1.0.0",
+  "description": "ai for screeps",
+  "main": "main.js",
+  "directories": {
+    "doc": "doc",
+    "lib": "lib",
+    "src": "src",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lexx",
+  "license": "ISC"
+}
