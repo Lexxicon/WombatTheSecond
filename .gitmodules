@@ -1,3 +1,6 @@
 [submodule "lib/screeps-typed"]
 	path = lib/screeps-typed
 	url = https://github.com/wmulligan/screeps-typed.git
+[submodule "lib/traveler"]
+	path = lib/traveler
+	url = https://github.com/bonzaiferroni/Traveler.git

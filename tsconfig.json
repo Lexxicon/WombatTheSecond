@@ -9,6 +9,10 @@
     "outDir": "./dist/js/"
   },
   "compileOnSave": false,
+  "files": [
+    "lib/screeps-typed/dist/screeps-typed.d.ts",
+    "lib/traveler/index.d.ts"
+  ],
   "include": [
     "typings/**/*.d.ts",
     "src/**/*.ts",
