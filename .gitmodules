@@ -4,3 +4,6 @@
 [submodule "lib/traveler"]
 	path = lib/traveler
 	url = https://github.com/bonzaiferroni/Traveler.git
+[submodule "lib/posis"]
+	path = lib/posis
+	url = https://github.com/screepers/POSIS.git

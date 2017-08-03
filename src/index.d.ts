@@ -1,8 +1,8 @@
 interface Memory {
   uuid: number;
-  log: any;
   username: string;
-  version: string;
+  revision: string;
+  buildTime: string;
   overmind: {};
 }
 
