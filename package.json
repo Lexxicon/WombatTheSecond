@@ -19,6 +19,7 @@
   "author": "Lexx",
   "license": "ISC",
   "devDependencies": {
+    "@types/lodash": "^3.10.0",
     "tslint": "^5.5.0",
     "typings": "^2.1.1"
   }
