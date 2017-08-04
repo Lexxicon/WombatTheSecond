@@ -10,7 +10,6 @@
   },
   "compileOnSave": false,
   "files": [
-    "lib/posis/dist/index.d.ts",
     "lib/WombatPOSIS/dist/index.d.ts",
     "lib/screeps-typed/dist/screeps-typed.d.ts",
     "lib/traveler/index.d.ts"

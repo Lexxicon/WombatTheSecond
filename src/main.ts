@@ -1,7 +1,7 @@
 import { LoggerFactory } from "kernal/logger/LoggerFactory";
 import { BaseExtensionRegistry } from "./kernal/components/BaseExtensionRegistry";
 import { ProcessRegistry } from "./kernal/components/ProcessRegistry";
-import { WombatKernal } from "./kernal/WombatKernal";
+import { BaseKernel } from "./kernal/WombatKernal";
 
 const log = LoggerFactory.getLogger("main");
 
@@ -22,5 +22,5 @@ Memory.username = Memory.username ||
 export const loop = () => {
   const pRegistry = new ProcessRegistry();
   const extRegistry = new BaseExtensionRegistry();
-  const kernel = new WombatKernal(pRegistry, extRegistry, Memory.kernel || (Memory.kernel = {}));
+  const kernel = new BaseKernel(pRegistry, extRegistry, Memory.kernel || (Memory.kernel = {}));
 };

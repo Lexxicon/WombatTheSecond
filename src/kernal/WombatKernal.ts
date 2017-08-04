@@ -1,7 +1,6 @@
 
 import { ProcessIDManager } from "kernal/components/ProcessIDManager";
 import { LoggerFactory } from "kernal/logger/LoggerFactory";
-import { WombatProcessRegistry } from "kernal/WombatProcessRegistry";
 
 interface ProcessTable {
   [id: string]: WombatProcessInfo;
@@ -16,7 +15,7 @@ interface KernelMemory {
   processMemory: ProcessMemory;
 }
 
-export class WombatKernal implements IPosisKernel {
+export class BaseKernel implements WombatKernel {
   private logger: IPosisLogger = LoggerFactory.getLogger("Kernel");
 
   /** lowered after the first request to kill the kernel process */
@@ -33,6 +32,8 @@ export class WombatKernal implements IPosisKernel {
   private extensionRegistry: WombatExtensionRegistry;
   /** responsible for generating unique ids. Must return ids when finished */
   private idManager: ProcessIDManager;
+
+  private processCache: { [id: string]: WombatProcess | IPosisProcess };
 
   private memoryRoot: {
     kernel: KernelMemory
@@ -57,7 +58,13 @@ export class WombatKernal implements IPosisKernel {
     this.extensionRegistry = extensionRegistry;
   }
 
-  public startProcess(imageName: string, startContext: any): { pid: PosisPID; process: IPosisProcess; } | undefined {
+  public notify(pid: PosisPID, msg: any): void {
+    throw new Error("Method not implemented.");
+  }
+  public startProcess(imageName: string, startContext: any): {
+    pid: PosisPID;
+    process: WombatProcess | IPosisProcess;
+  } | undefined {
     const self = this;
     const id = this.idManager.getId();
 
@@ -113,8 +120,8 @@ export class WombatKernal implements IPosisKernel {
     this.logger.info(`Killed ${pid}`);
   }
 
-  public getProcessById(pid: PosisPID): IPosisProcess | undefined {
-    return this.processTable[pid] && this.processTable[pid].process;
+  public getProcessById(pid: PosisPID): WombatProcess | IPosisProcess | undefined {
+    return this.processTable[pid] && this.createProcess(pid);
 
   }
 
@@ -125,6 +132,10 @@ export class WombatKernal implements IPosisKernel {
   }
 
   private createProcess(id: PosisPID): IPosisProcess | undefined {
+    if (this.processCache[id]) {
+      return this.processCache[id];
+    }
+
     const pinfo = this.processTable[id];
 
     const self = this;
@@ -132,7 +143,7 @@ export class WombatKernal implements IPosisKernel {
       id,
       get parentId() { return pinfo.parentId; },
       imageName: pinfo.name,
-      memory: startContext,
+      memory: this.processMemory[id] || (this.processMemory[id] = {}),
       log: LoggerFactory.getLogger(`${pinfo.name}-${pinfo.id}`),
       queryPosisInterface: self.extensionRegistry.getExtension.bind(self.extensionRegistry)
     };
