@@ -11,6 +11,7 @@ export class ProcessRegistry implements IPosisProcessRegistry {
       logger.error(`Name already registered: ${imageName}`);
       return false;
     }
+
     logger.debug(`Registered ${imageName}`);
     this.registry[imageName] = constructor;
     return true;

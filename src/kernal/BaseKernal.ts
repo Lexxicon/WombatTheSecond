@@ -1,5 +1,8 @@
 
 export class BaseKernal implements IPosisKernel {
+
+  private currentPID: PosisPID;
+
   public startProcess(imageName: string, startContext: any): { pid: PosisPID; process: IPosisProcess; } | undefined {
     throw new Error("Method not implemented.");
   }
