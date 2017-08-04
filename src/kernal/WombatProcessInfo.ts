@@ -1,9 +1,6 @@
 import { ProcessStatus } from "kernal/ProcessStatus";
 
-export interface ProcessInfo {
-  id: PosisPID;
-  parent_id: PosisPID;
-  name: string;
+export interface WombatProcessInfo extends IPosisProcessContext {
   status: ProcessStatus;
   process?: IPosisProcess;
 }

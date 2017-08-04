@@ -1,5 +1,7 @@
 export enum ProcessStatus {
   SLEEP,
+  STARTING,
   RUNNING,
-  DEAD,
+  DONE,
+  ERROR,
 }
