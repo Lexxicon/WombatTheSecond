@@ -1,6 +1,6 @@
 export class ProcessIDManager {
   private memory: {
-    idPool: number[];
+    idPool: PosisPID[];
     lastID: number;
   };
 
@@ -9,11 +9,11 @@ export class ProcessIDManager {
     _.defaults(this.memory, { idPool: [], lastID: 0 });
   }
 
-  public getId(): number {
+  public getId(): PosisPID {
     return this.memory.idPool.pop() || this.memory.lastID++;
   }
 
-  public returnId(id: number): void {
+  public returnId(id: PosisPID): void {
     this.memory.idPool.push(id);
   }
 }

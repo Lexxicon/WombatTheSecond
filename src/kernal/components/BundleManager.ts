@@ -1,4 +1,3 @@
-import { ExtensionRegistry } from "kernal/ExtensionRegistry";
 import { LoggerFactory } from "kernal/logger/LoggerFactory";
 
 const logger = LoggerFactory.getLogger("BundleManager");
@@ -6,10 +5,10 @@ const logger = LoggerFactory.getLogger("BundleManager");
 export class BundleManager {
 
   private processRegistry: IPosisProcessRegistry;
-  private extensionRegistry: ExtensionRegistry;
+  private extensionRegistry: WombatExtensionRegistry;
   private installedBundles: Array<IPosisBundle<any>> = [];
 
-  constructor(processRegistry: IPosisProcessRegistry, extensionRegistry: ExtensionRegistry) {
+  constructor(processRegistry: IPosisProcessRegistry, extensionRegistry: WombatExtensionRegistry) {
     this.processRegistry = processRegistry;
     this.extensionRegistry = extensionRegistry;
   }

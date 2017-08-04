@@ -1,3 +1,4 @@
+import { WombatProcessRegistry } from "../WombatProcessRegistry";
 
 import { ProcessIDManager } from "kernal/components/ProcessIDManager";
 import { LoggerFactory } from "kernal/logger/LoggerFactory";
@@ -6,7 +7,7 @@ import { WombatProcessInfo } from "kernal/WombatProcessInfo";
 
 const logger = LoggerFactory.getLogger("ProcessRegistry");
 
-export class ProcessRegistry implements IPosisProcessRegistry {
+export class ProcessRegistry implements WombatProcessRegistry {
   private registry: { [name: string]: PosisProcessConstructor } = {};
 
   public register(imageName: string, constructor: new (context: IPosisProcessContext) => IPosisProcess): boolean {
@@ -20,17 +21,12 @@ export class ProcessRegistry implements IPosisProcessRegistry {
     return true;
   }
 
-  public getNewProcess(context: WombatProcessInfo): boolean {
+  public getNewProcess(context: IPosisProcessContext): IPosisProcess | undefined {
     if (!this.registry[context.imageName]) {
       logger.warn("requested image doesn't exist!");
-      return false;
-    }
-    if (context.process) {
-      logger.warn("context has process already!");
-      return false;
+      return;
     }
     logger.debug(`Created ${context.imageName}`);
-    context.process = new this.registry[context.imageName](context);
-    return true;
+    return new this.registry[context.imageName](context);
   }
 }

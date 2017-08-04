@@ -1,9 +1,8 @@
-import { ExtensionRegistry } from "kernal/ExtensionRegistry";
 import { LoggerFactory } from "kernal/logger/LoggerFactory";
 
 const logger = LoggerFactory.getLogger("ExtensionRegistry");
 
-export class BaseExtensionRegistry implements ExtensionRegistry {
+export class BaseExtensionRegistry implements WombatExtensionRegistry {
   private registry: { [interfaceId: string]: IPosisExtension } = {};
 
   public register(interfaceId: string, extension: IPosisExtension): boolean {

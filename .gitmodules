@@ -10,3 +10,6 @@
 [submodule "lib/kernel"]
 	path = lib/kernel
 	url = https://github.com/ags131/PosisKernel.git
+[submodule "lib/WombatPOSIS"]
+	path = lib/WombatPOSIS
+	url = https://github.com/Lexxicon/WombatPOSIS.git

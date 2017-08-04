@@ -22,6 +22,7 @@ Memory.username = Memory.username ||
     .first();
 
 export const loop = () => {
+  const p: IPosisProcess;
   const extensionReg = new ExtensionRegistry();
   const processReg = new ProcessRegistry();
   const kernel = new BaseKernel(processReg, extensionReg);
