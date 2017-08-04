@@ -1,9 +1,5 @@
-import { WombatProcessRegistry } from "../WombatProcessRegistry";
-
 import { ProcessIDManager } from "kernal/components/ProcessIDManager";
 import { LoggerFactory } from "kernal/logger/LoggerFactory";
-import { ProcessStatus } from "kernal/ProcessStatus";
-import { WombatProcessInfo } from "kernal/WombatProcessInfo";
 
 const logger = LoggerFactory.getLogger("ProcessRegistry");
 

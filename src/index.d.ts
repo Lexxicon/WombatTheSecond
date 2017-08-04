@@ -3,7 +3,7 @@ interface Memory {
   username: string;
   revision: string;
   buildTime: string;
-  overmind: {};
+  kernel: {};
 }
 
 declare const __REPO__: string;

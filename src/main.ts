@@ -1,9 +1,7 @@
-import { extensionRegistry } from "../lib/kernel/src";
-import { processRegistry } from "../lib/kernel/src";
-import { BaseKernel } from "../lib/kernel/src/lib/BaseKernel";
-import { ExtensionRegistry } from "../lib/kernel/src/lib/ExtensionRegistry";
-import { ProcessRegistry } from "../lib/kernel/src/lib/ProcessRegistry";
-import { LoggerFactory } from "./kernal/logger/LoggerFactory";
+import { LoggerFactory } from "kernal/logger/LoggerFactory";
+import { BaseExtensionRegistry } from "./kernal/components/BaseExtensionRegistry";
+import { ProcessRegistry } from "./kernal/components/ProcessRegistry";
+import { WombatKernal } from "./kernal/WombatKernal";
 
 const log = LoggerFactory.getLogger("main");
 
@@ -22,8 +20,7 @@ Memory.username = Memory.username ||
     .first();
 
 export const loop = () => {
-  const p: IPosisProcess;
-  const extensionReg = new ExtensionRegistry();
-  const processReg = new ProcessRegistry();
-  const kernel = new BaseKernel(processReg, extensionReg);
+  const pRegistry = new ProcessRegistry();
+  const extRegistry = new BaseExtensionRegistry();
+  const kernel = new WombatKernal(pRegistry, extRegistry, Memory.kernel || (Memory.kernel = {}));
 };
