@@ -1,5 +1,5 @@
-import { Logger } from "kernal/logger/Logger";
-import { LogLevel } from "kernal/logger/LogLevel";
+import { Logger } from "./Logger";
+import { LogLevel } from "./LogLevel";
 
 export class LoggerFactory implements WombatLoggerFactory {
   public getLogger(name: string): IPosisLogger {

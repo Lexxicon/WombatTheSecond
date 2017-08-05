@@ -1,6 +1,6 @@
 
-import { ProcessIDManager } from "kernal/components/ProcessIDManager";
-import { LoggerFactory } from "kernal/logger/LoggerFactory";
+import { ProcessIDManager } from "./components/ProcessIDManager";
+import { LoggerFactory } from "./logger/LoggerFactory";
 
 interface ProcessTable {
   [id: string]: WombatProcessInfo;

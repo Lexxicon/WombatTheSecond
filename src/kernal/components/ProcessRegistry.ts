@@ -1,5 +1,5 @@
-import { ProcessIDManager } from "kernal/components/ProcessIDManager";
-import { LoggerFactory } from "kernal/logger/LoggerFactory";
+import { LoggerFactory } from "./../logger/LoggerFactory";
+import { ProcessIDManager } from "./ProcessIDManager";
 
 const logger = LoggerFactory.getLogger("ProcessRegistry");
 

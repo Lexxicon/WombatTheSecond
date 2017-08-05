@@ -1,4 +1,4 @@
-import { LoggerFactory } from "kernal/logger/LoggerFactory";
+import { LoggerFactory } from "./../logger/LoggerFactory";
 
 const logger = LoggerFactory.getLogger("BundleManager");
 
