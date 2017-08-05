@@ -4,9 +4,9 @@ export class Logger implements IPosisLogger {
   // Use for HTML styling (Colors match screeps_console)
   private static styles = {
     default: "color: white; background-color: black",
-    [LogLevel.DEBUG]: "color: darkblue",
-    [LogLevel.INFO]: "color: darkgreen",
-    [LogLevel.WARN]: "color: white",
+    [LogLevel.DEBUG]: "color: grey",
+    [LogLevel.INFO]: "color: white",
+    [LogLevel.WARN]: "color: yellow",
     [LogLevel.ERROR]: "color: red",
     [LogLevel.FATAL]: "color: yellow; background-color: red",
   };

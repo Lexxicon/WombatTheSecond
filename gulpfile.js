@@ -139,7 +139,7 @@ gulp.task('compile', () => {
 });
 
 gulp.task('flatten', () => {
-  return gulp.src('dist/tmp/**/*.js')
+  return gulp.src('dist/tmp/src/**/*.js')
     .pipe(gulpDotFlatten())
     .pipe(gulp.dest('dist/' + buildTarget));
 })
