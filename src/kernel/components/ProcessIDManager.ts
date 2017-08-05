@@ -6,7 +6,7 @@ export class ProcessIDManager {
 
   constructor(mem: any) {
     this.memory = mem;
-    _.defaults(this.memory, { idPool: [], lastID: 0 });
+    _.defaults(this.memory, { idPool: [], lastID: 1 });
   }
 
   public getId(): PosisPID {
