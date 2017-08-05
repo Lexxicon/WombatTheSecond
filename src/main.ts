@@ -1,3 +1,4 @@
+import { BUILD_TIME, REVISION } from "./build_info";
 import { BaseExtensionRegistry } from "./kernal/components/BaseExtensionRegistry";
 import { ProcessRegistry } from "./kernal/components/ProcessRegistry";
 import { LoggerFactory } from "./kernal/logger/LoggerFactory";
@@ -5,10 +6,10 @@ import { BaseKernel } from "./kernal/WombatKernal";
 
 const log = LoggerFactory.getLogger("main");
 
-if (Memory.revision !== __REVISION__ || Memory.buildTime !== __BUILD_TIME__) {
-  Memory.revision = __REVISION__;
-  Memory.buildTime = __BUILD_TIME__;
-  log.info(`loading revision: ${__REVISION__} : ${__BUILD_TIME__}`);
+if (Memory.revision !== REVISION || Memory.buildTime !== BUILD_TIME) {
+  Memory.revision = REVISION;
+  Memory.buildTime = BUILD_TIME;
+  log.info(`loading revision: ${REVISION} : ${BUILD_TIME}`);
 }
 
 Memory.username = Memory.username || _.get(_.find(Game.spawns), "owner.username");
