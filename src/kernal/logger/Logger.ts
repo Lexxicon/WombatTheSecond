@@ -1,4 +1,4 @@
-import { LogLevel } from "kernal/logger/LogLevel";
+import { LogLevel } from "./LogLevel";
 
 export class Logger implements IPosisLogger {
   // Use for HTML styling (Colors match screeps_console)

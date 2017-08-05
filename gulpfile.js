@@ -8,6 +8,7 @@ const path = require('path');
 const git = require('gulp-git');
 const ts = require("gulp-typescript");
 const gulpRename = require('gulp-rename');
+const tslint = require('gulp-tslint');
 const tsProject = ts.createProject("tsconfig.json");
 const dotFlatten = require('gulp-dot-flatten');
 const replace = require('gulp-replace');
@@ -63,15 +64,29 @@ if (gutil.env.target) {
 const buildTarget = gutil.env.target || config.defaultTarget;
 const buildConfig = config.targets[buildTarget];
 
+const repo = config.repository || "";
 const time = new Date().getTime();
 let hash = undefined;
 
 /*********/
 /* TASKS */
 /*********/
-
+gulp.task('lint', function (done) {
+  if (buildConfig.lint) {
+    gutil.log('linting ...');
+    return gulp.src('src/**/*.ts')
+      .pipe(tslint({ formatter: 'prose' }))
+      .pipe(tslint.report({
+        summarizeFailureOutput: true,
+        emitError: buildConfig.lintRequired === true
+      }));
+  } else {
+    gutil.log('skipped lint, according to config');
+    return done();
+  }
+});
 gulp.task('findHash', (cb) => {
-  git.revParse({ args: '--short HEAD', quite: true }, (err, h) => {
+  git.revParse({ args: '--short HEAD', quiet: true }, (err, h) => {
     hash = h;
     if (err) return cb(err);
     cb();
@@ -83,18 +98,14 @@ gulp.task('clean', () => {
     .pipe(clean());
 });
 
-gulp.task('compile', gulp.series('findHash', () => {
+gulp.task('compile', () => {
   return tsProject.src()
     .pipe(replace('__REVISION__', hash))
     .pipe(replace('__BUILD_TIME__', time))
+    .pipe(replace('__REPO__', repo))
     .pipe(tsProject())
     .js.pipe(gulp.dest("dist/tmp"));
-}));
-
-// gulp.task('replace', () => {
-//   return gulp.src('dist/tmp/**/*.js')
-//     .js.pipe(gulp.dest("dist/tmp"));
-// })
+});
 
 gulp.task('flatten', () => {
   return gulp.src('dist/tmp/**/*.js')
@@ -112,4 +123,4 @@ gulp.task('push', () => {
 /* META-TASKS */
 /**************/
 
-gulp.task('publish', gulp.series('clean', 'compile', 'flatten', 'push'));
+gulp.task('publish', gulp.series(gulp.parallel('findHash', 'clean', 'lint'), 'compile', 'flatten', 'push'));

@@ -22,25 +22,22 @@
   "devDependencies": {
     "@types/lodash": "^3.10.0",
     "deep-equal": "^1.0.1",
-    "git-rev": "^0.2.1",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-clean": "^0.3.2",
     "gulp-collect": "^0.1.0",
     "gulp-dot-flatten": "^1.1.1",
+    "gulp-git": "^2.4.1",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.6.1",
     "gulp-screeps": "^1.0.3",
+    "gulp-tslint": "^8.1.1",
     "gulp-typescript": "^3.2.1",
     "gulp-util": "^3.0.8",
     "lodash": "^4.17.4",
     "q": "^1.5.0",
-    "rimraf": "^2.6.1",
-    "rollup": "^0.45.2",
-    "rollup-plugin-includepaths": "^0.2.2",
-    "rollup-plugin-root-import": "^0.2.2",
-    "rollup-plugin-typescript2": "^0.5.0",
+    "recast": "^0.12.6",
+    "through2": "^2.0.3",
     "tslint": "^5.5.0",
-    "gulp-git": "^2.4.1",
-    "typings": "^2.1.1"
+    "typescript": "^2.4.2"
   }
 }
