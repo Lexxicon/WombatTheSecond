@@ -1,8 +1,4 @@
 {
-  "user": {
-    "email": "",
-    "password": ""
-  },
   "repository": "https://github.com/Lexxicon/WombatTheSecond",
   "defaultTarget": "dev",
   "targets": {

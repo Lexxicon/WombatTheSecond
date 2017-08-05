@@ -34,6 +34,18 @@ try {
   process.exit();
 }
 
+try {
+  let credentials = require('./credentials.json');
+  config.user = credentials.user;
+} catch (error) {
+  if (error.code == "MODULE_NOT_FOUND") {
+    gutil.log(gutil.colors.red('ERROR'), 'Could not find file "credentials.json"');
+  } else {
+    gutil.log(error);
+  }
+  process.exit();
+}
+
 if (!config.user || !config.user.email || !config.user.password) {
   gutil.log(gutil.colors.red('ERROR'), 'Invalid "config.json" file: cannot find user credentials');
   process.exit();

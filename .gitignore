@@ -3,7 +3,7 @@
 /node_modules
 
 # Screeps config file
-/config.json
+/credentials.json
 
 # code coverage directory
 /coverage
