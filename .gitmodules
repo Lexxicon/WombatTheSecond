@@ -7,3 +7,6 @@
 [submodule "lib/WombatPOSIS"]
 	path = lib/WombatPOSIS
 	url = https://github.com/Lexxicon/WombatPOSIS.git
+[submodule "lib/screeps/common"]
+	path = lib/screeps/common
+	url = https://github.com/screeps/common.git

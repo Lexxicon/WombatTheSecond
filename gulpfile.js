@@ -12,6 +12,7 @@ const tslint = require('gulp-tslint');
 const tsProject = ts.createProject("tsconfig.json");
 const dotFlatten = require('gulp-dot-flatten');
 const replace = require('gulp-replace');
+const download = require("gulp-download");
 
 const gulpDotFlatten = require('./lib/gulp-dot-flatten.js');
 const gulpScreepsUpload = require('./lib/gulp-screeps-upload.js');
@@ -71,6 +72,15 @@ let hash = undefined;
 /*********/
 /* TASKS */
 /*********/
+// gulp.task('update_constants', () => {
+//   return download('https://screeps.com/a/constants.js')
+//     .pipe(gulp.dest('lib/downloads'));
+// });
+
+gulp.task('update_submodules', (done) => {
+  git.updateSubmodule({ args: "--init --remote", quiet: true }, done);
+})
+
 gulp.task('lint', function (done) {
   if (buildConfig.lint) {
     gutil.log('linting ...');
