@@ -13,6 +13,8 @@ const tsProject = ts.createProject("tsconfig.json");
 const dotFlatten = require('gulp-dot-flatten');
 const replace = require('gulp-replace');
 const download = require("gulp-download");
+const filter = require('gulp-filter');
+const mocha = require('gulp-mocha');
 
 const gulpDotFlatten = require('./lib/gulp-dot-flatten.js');
 const gulpScreepsUpload = require('./lib/gulp-screeps-upload.js');
@@ -120,6 +122,13 @@ gulp.task('clean', () => {
     .pipe(clean());
 });
 
+gulp.task('test', () => {
+  return gulp.src('dist/tmp/test')
+    .pipe(mocha({
+      require: ['lodash', 'mochaShim.js']
+    }));
+})
+
 gulp.task('compile', () => {
   return tsProject.src()
     .pipe(replace('__REVISION__', hash))
@@ -145,4 +154,13 @@ gulp.task('push', () => {
 /* META-TASKS */
 /**************/
 
-gulp.task('publish', gulp.series(gulp.parallel('findHash', 'clean', 'lint'), 'compile', 'flatten', 'push'));
+gulp.task('publish', gulp.series(
+  gulp.parallel('findHash', 'clean', 'lint'),
+  'compile',
+  gulp.parallel('flatten', 'test'),
+  'push'));
+
+gulp.task('build', gulp.series(
+  gulp.parallel('findHash', 'clean', 'lint'),
+  'compile',
+  gulp.parallel('flatten', 'test')));

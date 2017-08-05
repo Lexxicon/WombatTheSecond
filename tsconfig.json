@@ -5,7 +5,7 @@
     "noEmitOnError": true,
     "strict": true,
     "sourceMap": false,
-    "baseUrl": "./src/",
+    "allowJs": true,
     "outDir": "./dist/js/"
   },
   "compileOnSave": false,
@@ -15,13 +15,13 @@
     "lib/traveler/index.d.ts"
   ],
   "include": [
-    "typings/**/*.d.ts",
     "src/**/*.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "test/**/*.ts",
+    "test/**/*..dts"
   ],
   "exclude": [
     "dist",
-    "node_modules",
-    "src/snippets"
+    "node_modules"
   ]
 }
