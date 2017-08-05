@@ -4,9 +4,10 @@ import { ProcessIDManager } from "./ProcessIDManager";
 const logger = LoggerFactory.getLogger("ProcessRegistry");
 
 export class ProcessRegistry implements WombatProcessRegistry {
-  private registry: { [name: string]: PosisProcessConstructor } = {};
+  private registry: { [name: string]: WombatProcessConstructor } = {};
 
-  public register(imageName: string, constructor: new (context: IPosisProcessContext) => IPosisProcess): boolean {
+  public register(imageName: string, constructor: WombatProcessConstructor): boolean {
+
     if (this.registry[imageName]) {
       logger.error(`Name already registered: ${imageName}`);
       return false;
@@ -17,12 +18,22 @@ export class ProcessRegistry implements WombatProcessRegistry {
     return true;
   }
 
-  public getNewProcess(context: IPosisProcessContext): IPosisProcess | undefined {
+  public getNewProcess(context: IPosisProcessContext): WombatProcess | undefined {
     if (!this.registry[context.imageName]) {
       logger.warn("requested image doesn't exist!");
       return;
     }
     logger.debug(`Created ${context.imageName}`);
-    return new this.registry[context.imageName](context);
+    const posisP = new this.registry[context.imageName](context);
+
+    if (!this.isWombatProcess(posisP)) {
+      (posisP as any).notify = (msg: any) => {/** */ };
+    }
+
+    return posisP as WombatProcess;
+  }
+
+  private isWombatProcess(process: IPosisProcess | WombatProcess): process is WombatProcess {
+    return (process as WombatProcess).notify !== undefined;
   }
 }

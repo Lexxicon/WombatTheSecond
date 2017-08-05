@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { ProcessIDManager } from "../../../src/kernal/components/ProcessIDManager";
+import { ProcessIDManager } from "../../../src/kernel/components/ProcessIDManager";
 
 describe("Process Id Manager", () => {
   let idManager: ProcessIDManager;

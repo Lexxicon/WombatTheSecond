@@ -1,6 +1,7 @@
+import { LogLevel } from "../../kernel/logger/LogLevel";
 import { LoggerFactory } from "./../logger/LoggerFactory";
 
-const logger = LoggerFactory.getLogger("ExtensionRegistry");
+const logger = LoggerFactory.getLogger("ExtensionRegistry", LogLevel.INFO);
 
 export class BaseExtensionRegistry implements WombatExtensionRegistry {
   private registry: { [interfaceId: string]: IPosisExtension } = {};

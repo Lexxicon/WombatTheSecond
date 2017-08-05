@@ -6,7 +6,7 @@ export class LoggerFactory implements WombatLoggerFactory {
     return LoggerFactory.getLogger(name);
   }
 
-  public static getLogger(name: string): IPosisLogger {
-    return new Logger(name, LogLevel.DEBUG);
+  public static getLogger(name: string, level: LogLevel = LogLevel.DEBUG): IPosisLogger {
+    return new Logger(name, level);
   }
 }

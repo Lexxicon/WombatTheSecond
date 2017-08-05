@@ -4,4 +4,5 @@ interface Memory {
   revision: string;
   buildTime: string;
   kernel: {};
+  pids: {};
 }

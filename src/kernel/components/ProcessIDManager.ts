@@ -1,19 +1,19 @@
 export class ProcessIDManager {
-  private memory: {
+  private memory: () => {
     idPool: PosisPID[];
     lastID: number;
   };
 
   constructor(mem: any) {
     this.memory = mem;
-    _.defaults(this.memory, { idPool: [], lastID: 1 });
+    _.defaults(this.memory(), { idPool: [], lastID: 1 });
   }
 
   public getId(): PosisPID {
-    return this.memory.idPool.pop() || this.memory.lastID++;
+    return this.memory().idPool.pop() || this.memory().lastID++;
   }
 
   public returnId(id: PosisPID): void {
-    this.memory.idPool.push(id);
+    this.memory().idPool.push(id);
   }
 }
