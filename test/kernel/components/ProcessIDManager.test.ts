@@ -3,7 +3,10 @@ import { ProcessIDManager } from "../../../src/kernel/components/ProcessIDManage
 
 describe("Process Id Manager", () => {
   let idManager: ProcessIDManager;
-  beforeEach(() => { idManager = new ProcessIDManager({}); });
+  beforeEach(() => {
+    const mem = {};
+    idManager = new ProcessIDManager(() => mem);
+  });
 
   it("can reuse id's", () => {
     const id = idManager.getId();
