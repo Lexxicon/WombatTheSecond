@@ -1,0 +1,22 @@
+{
+  "user": {
+    "email": "",
+    "password": ""
+  },
+  "repository": "https://github.com/Lexxicon/WombatTheSecond",
+  "defaultTarget": "dev",
+  "targets": {
+    "dev": {
+      "branch": "dev",
+      "bundle": true,
+      "lint": true,
+      "lintRequired": false
+    },
+    "prod": {
+      "branch": "prod",
+      "bundle": true,
+      "lint": true,
+      "lintRequired": false
+    }
+  }
+}
