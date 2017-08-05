@@ -122,11 +122,15 @@ gulp.task('clean', () => {
     .pipe(clean());
 });
 
-gulp.task('test', () => {
-  return gulp.src('dist/tmp/test')
+gulp.task('test', (cb) => {
+  return gulp.src('dist/tmp/test/**/*.test.js')
     .pipe(mocha({
       require: ['lodash', 'mochaShim.js']
-    }));
+    })).on('error', () => {
+      const err = new Error("Test failed");
+      err.stack = "Test failed";
+      cb(err);
+    });
 })
 
 gulp.task('compile', () => {
