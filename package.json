@@ -20,6 +20,16 @@
   "license": "ISC",
   "devDependencies": {
     "@types/lodash": "^3.10.0",
+    "git-rev": "^0.2.1",
+    "gulp": "^3.9.1",
+    "gulp-screeps": "^1.0.3",
+    "gulp-typescript": "^3.2.1",
+    "gulp-util": "^3.0.8",
+    "rimraf": "^2.6.1",
+    "rollup": "^0.45.2",
+    "rollup-plugin-includepaths": "^0.2.2",
+    "rollup-plugin-root-import": "^0.2.2",
+    "rollup-plugin-typescript2": "^0.5.0",
     "tslint": "^5.5.0",
     "typings": "^2.1.1"
   }
