@@ -10,7 +10,7 @@ export class ProcessIDManager {
   }
 
   public getId(): PosisPID {
-    return this.memory().idPool.pop() || this.memory().lastID++;
+    return this.memory().idPool.pop() || (_.padLeft("" + this.memory().lastID++, 5));
   }
 
   public returnId(id: PosisPID): void {

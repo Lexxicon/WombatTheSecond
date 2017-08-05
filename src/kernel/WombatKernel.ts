@@ -20,6 +20,10 @@ interface PInfo {
   process: WombatProcess;
 }
 
+interface IPosisExtension {
+  wombatKernel: BaseKernel;
+}
+
 export class BaseKernel implements WombatKernel {
   private logger: IPosisLogger = LoggerFactory.getLogger("Kernel");
 
@@ -60,14 +64,15 @@ export class BaseKernel implements WombatKernel {
     extensionRegistry: WombatExtensionRegistry,
     idManager: ProcessIDManager,
     kernelMemory: () => any) {
-    this.memoryRoot = { get kernel(): KernelMemory { return kernelMemory(); } };
 
+    this.memoryRoot = { get kernel(): KernelMemory { return kernelMemory(); } };
     this.processRegistry = processRegistry;
     this.extensionRegistry = extensionRegistry;
     this.idManager = idManager;
 
-    this.extensionRegistry.register("baseKernel", this);
-    this.extensionRegistry.register("sleep", this);
+    extensionRegistry.register("wombatKernel", this);
+    extensionRegistry.register("baseKernel", this);
+    extensionRegistry.register("sleep", this);
   }
 
   public notify(pid: PosisPID, msg: any): void {
@@ -105,7 +110,7 @@ export class BaseKernel implements WombatKernel {
   }
 
   public killProcess(pid: PosisPID): void {
-    this.logger.debug(`Killing ${pid}`);
+    this.logger.debug(`Killing [${pid}]`);
     const process = this.processTable[pid];
 
     const ids = Object.keys(this.processTable);
@@ -117,7 +122,7 @@ export class BaseKernel implements WombatKernel {
 
     process.status = ProcessStatus.KILLLED;
     process.endedTick = Game.time;
-    this.logger.info(`Killed ${pid}`);
+    this.logger.info(`Killed [${pid}]`);
   }
 
   public getProcessById(pid: PosisPID): WombatProcess | undefined {
@@ -156,7 +161,7 @@ export class BaseKernel implements WombatKernel {
           this.killProcess(pid);
           pInfo.status = ProcessStatus.ERROR;
           pInfo.error = e.stack || JSON.stringify(e);
-          this.logger.error(`error running ${pid}:${pInfo.name}\n${e.stack}`);
+          this.logger.error(`error running [${pid}]:${pInfo.name}\n${e.stack}`);
         } finally {
           this.currentPID = "";
         }
@@ -174,7 +179,7 @@ export class BaseKernel implements WombatKernel {
     for (let i = 0; i < pids.length; i++) {
       const ctx = this.processTable[pids[i]];
       if (!this.isAlive(ctx.status) && (!ctx.endedTick || Game.time - ctx.endedTick > 50)) {
-        this.logger.debug("reclaiming " + ctx.id + ":" + ctx.name);
+        this.logger.debug("reclaiming [" + ctx.id + "] :" + ctx.name);
         delete this.processTable[ctx.id];
         delete this.processMemory[ctx.id];
         delete this.processCache[ctx.id];
@@ -226,7 +231,7 @@ export class BaseKernel implements WombatKernel {
       imageName: pinfo.name,
       get parentId() { return self.processTable[id].id; },
       get memory() { return (self.processMemory[id] || (self.processMemory[id] = {})); },
-      log: LoggerFactory.getLogger(`${pinfo.name}-${pinfo.id}`),
+      log: LoggerFactory.getLogger(`[${pinfo.id}]${pinfo.name}`),
       queryPosisInterface: self.extensionRegistry.getExtension.bind(self.extensionRegistry)
     };
 
