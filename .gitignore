@@ -15,6 +15,9 @@
 /coverage
 .nyc_output/
 
+#rollup cache
+.rpt2_cache/
+
 # Numerous always-ignore extensions
 *.diff
 *.err
@@ -37,7 +40,6 @@ nbproject
 *.sublime-project
 *.sublime-workspace
 .idea
-.rpt2_cache
 
 # =========================
 # Operating System Files
