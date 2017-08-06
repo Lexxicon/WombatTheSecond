@@ -87,10 +87,15 @@ let hash = undefined;
 /*********/
 /* TASKS */
 /*********/
-// gulp.task('update_constants', () => {
-//   return download('https://screeps.com/a/constants.js')
-//     .pipe(gulp.dest('lib/downloads'));
-// });
+gulp.task('update_constants', () => {
+  return download('https://screeps.com/a/constants.js')
+    .pipe(gulp.dest('lib/downloads'));
+});
+
+gulp.task('update_stats', () => {
+  return download('https://raw.githubusercontent.com/screepers/screeps-stats/master/js/screepsstats.js')
+    .pipe(gulp.dest('lib/downloads'));
+});
 
 gulp.task('update_submodules', (done) => {
   git.updateSubmodule({ args: "--init --remote", quiet: true }, done);

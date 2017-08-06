@@ -11,8 +11,10 @@
   },
   "scripts": {
     "gulp": "./node_modules/.bin/gulp",
-    "check": "./node_modules/.bin/npm-check -ignore lodash",
-    "publish": "./node_modules/.bin/gulp publish",
+    "_check": "./node_modules/.bin/npm-check -ignore lodash",
+    "check": "npm run _check -s || exit 0",
+    "update_sub": "npm run gulp update_submodules -s || exit 0",
+    "publish": "npm run gulp publish -s || exit 0",
     "test": "npm run gulp build -s || exit 0"
   },
   "repository": {
