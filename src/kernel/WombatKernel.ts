@@ -20,10 +20,6 @@ interface PInfo {
   process: WombatProcess;
 }
 
-interface IPosisExtension {
-  wombatKernel: BaseKernel;
-}
-
 export class BaseKernel implements WombatKernel, IPosisSleepExtension {
   private logger: IPosisLogger = LoggerFactory.getLogger("Kernel");
 
@@ -82,7 +78,7 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
   public setRootBundle(bundle: IPosisBundle<{}>) {
     if (!bundle.rootImageName) { throw new Error("Provided bundle has no root image"); }
     this.rootImage = bundle.rootImageName;
-    this.rootInitMem = bundle.makeDefaultRootMemory || {};
+    this.rootInitMem = (bundle.makeDefaultRootMemory && bundle.makeDefaultRootMemory()) || {};
   }
 
   public sleep(ticks: number): void {
@@ -90,10 +86,12 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     this.processTable[this.currentPID].wakeTick = Game.time + ticks;
     this.processTable[this.currentPID].status = ProcessStatus.SLEEP;
   }
+
   public notify(pid: PosisPID, msg: any): void {
     const proc = this.getProcessById(pid);
     if (proc) { proc.notify(msg); }
   }
+
   public startProcess(imageName: string, startContext: any): PInfo | undefined {
     const id = this.idManager.getId();
 
@@ -111,7 +109,7 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     };
 
     this.processTable[id] = wombatCtx;
-    this.processMemory[id] = startContext;
+    this.processMemory[id] = startContext || {};
 
     const process = this.createProcess(id);
     if (!process) {
@@ -124,19 +122,38 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     return { pid: id, process };
   }
 
+  public findChildren(pid: PosisPID): PosisPID[] {
+    const ids = Object.keys(this.processTable);
+    const searchIds = [pid];
+    const foundIds: PosisPID[] = [];
+
+    while (searchIds.length > 0) {
+      const id = searchIds.pop();
+      for (let i = 0; i < ids.length; i++) {
+        if (this.processTable[ids[i]].parentId === id) {
+          foundIds.push(ids[i]);
+          searchIds.push(ids[i]);
+        }
+      }
+    }
+
+    return foundIds;
+  }
+
   public killProcess(pid: PosisPID): void {
     this.logger.debug(`Killing [${pid}]`);
     const process = this.processTable[pid];
 
     const ids = Object.keys(this.processTable);
     for (let i = 0; i < ids.length; i++) {
-      if (this.processTable[ids[i]].parentId === process.id) {
+      if (this.processTable[ids[i]].parentId === pid) {
         this.killProcess(ids[i]);
       }
     }
-
-    process.status = ProcessStatus.KILLLED;
-    process.endedTick = Game.time;
+    if (process !== undefined) {
+      process.status = ProcessStatus.KILLLED;
+      process.endedTick = Game.time;
+    }
     this.logger.info(`Killed [${pid}]`);
   }
 
@@ -173,7 +190,11 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
           const process = this.getProcessById(pid);
           if (process) {
             this.currentPID = pid;
-            process.run();
+            if (process.run()) {
+              this.logger.debug(`${pid} finished running`);
+              this.killProcess(pid);
+              pInfo.status = ProcessStatus.DONE;
+            }
           }
         } catch (e) {
           this.killProcess(pid);

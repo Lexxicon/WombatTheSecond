@@ -5,7 +5,7 @@ import { ProcessRegistry } from "./kernel/components/ProcessRegistry";
 import { LoggerFactory } from "./kernel/logger/LoggerFactory";
 import { bundle as testBundle } from "./kernel/processes/PosisTest";
 import { BaseKernel } from "./kernel/WombatKernel";
-import { bundle as overmindBundle } from "./processes/Overmind";
+import { bundle as overmindBundle } from "./processes/OvermindBundle";
 
 const log = LoggerFactory.getLogger("main");
 

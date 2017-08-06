@@ -1,48 +1,45 @@
-interface OvermindMemory {
-  name: string;
+import { BasicProcess } from "../kernel/processes/BasicProcess";
+import { HiveProcess } from "./Hive";
+export interface OvermindMemory {
+  hives: { [hiveName: string]: PosisPID; };
 }
 
-class OvermindProcess implements WombatProcess {
+export class OvermindProcess extends BasicProcess<OvermindMemory> {
   public static imageName = "Overmind/OvermindProcess";
 
-  get memory(): any { // private memory
-    return this.context.memory;
-  }
-  get imageName(): string { // image name (maps to constructor)
-    return this.context.imageName;
-  }
-  get id(): PosisPID { // ID
-    return this.context.id;
-  }
-  get parentId(): PosisPID { // Parent ID
-    return this.context.parentId;
-  }
-  get log(): IPosisLogger { // Logger
-    return this.context.log;
-  }
-
-  constructor(private context: IPosisProcessContext) {
-
+  constructor(context: IPosisProcessContext) {
+    super(context);
   }
 
   public notify(msg: any): void {
-    this.context.log.info(`Recieved msg ${msg}`);
+    this.log.info(`Recieved msg ${msg}`);
+  }
+
+  private findNewHives(): void {
+    for (const name in Game.rooms) {
+      if (Game.rooms[name].controller === undefined) { continue; }
+      if (this.memory.hives[name] === undefined && Game.rooms[name].controller!.my) {
+        this.log.info(`Starting hive for ${name}`);
+        const process = this.kernel.startProcess(HiveProcess.imageName, { room: name });
+        if (process === undefined) { throw new Error("Failed to start new hive"); }
+        this.memory.hives[name] = process.pid;
+        this.log.debug(`Hive started with id ${process.pid}`);
+      }
+    }
+  }
+
+  private purgeOldHives(): void {
+    for (const hive in this.memory.hives) {
+      if (Game.rooms[hive] === undefined || !Game.rooms[hive].controller!.my) {
+        this.log.info(`Lost hive ${hive}`);
+        this.kernel.killProcess(this.memory.hives[hive]);
+        delete this.memory.hives[hive];
+      }
+    }
   }
 
   public run(): void {
-    this.log.info(`tick`);
+    this.findNewHives();
+    this.purgeOldHives();
   }
 }
-export const bundle: IPosisBundle<OvermindMemory> = {
-
-  install(registry: IPosisProcessRegistry) {
-    registry.register(OvermindProcess.imageName, OvermindProcess);
-  },
-
-  rootImageName: OvermindProcess.imageName,
-  makeDefaultRootMemory: (override) => {
-    if (override) { return override; }
-
-    return { name: "" };
-  }
-};
