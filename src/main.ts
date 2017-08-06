@@ -3,8 +3,9 @@ import { BaseExtensionRegistry } from "./kernel/components/BaseExtensionRegistry
 import { ProcessIDManager } from "./kernel/components/ProcessIDManager";
 import { ProcessRegistry } from "./kernel/components/ProcessRegistry";
 import { LoggerFactory } from "./kernel/logger/LoggerFactory";
-import { bundle as test } from "./kernel/processes/PosisTest";
+import { bundle as testBundle } from "./kernel/processes/PosisTest";
 import { BaseKernel } from "./kernel/WombatKernel";
+import { bundle as overmindBundle } from "./processes/Overmind";
 
 const log = LoggerFactory.getLogger("main");
 
@@ -18,9 +19,12 @@ if (Memory.revision !== REVISION || Memory.buildTime !== BUILD_TIME) {
   Memory.buildTime = BUILD_TIME;
   log.info(`loading revision: ${REVISION} : ${BUILD_TIME}`);
   // install and start the testing process to make sure we didn't bork something
-  test.install(pRegistry);
-  kernel.startProcess(test.rootImageName || "", { maxRunTime: 1 });
+  testBundle.install(pRegistry);
+  kernel.startProcess(testBundle.rootImageName || "", { maxRunTime: 1 });
 }
+
+kernel.setRootBundle(overmindBundle);
+overmindBundle.install(pRegistry);
 
 Memory.username = Memory.username || _.get(_.find(Game.spawns), "owner.username");
 

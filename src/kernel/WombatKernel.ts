@@ -24,8 +24,12 @@ interface IPosisExtension {
   wombatKernel: BaseKernel;
 }
 
-export class BaseKernel implements WombatKernel {
+export class BaseKernel implements WombatKernel, IPosisSleepExtension {
   private logger: IPosisLogger = LoggerFactory.getLogger("Kernel");
+
+  /** if there are no running processes, the kernel will launch this */
+  private rootImage: string;
+  private rootInitMem: {};
 
   /** id of the currently evaluating process */
   private currentPID: PosisPID;
@@ -75,6 +79,17 @@ export class BaseKernel implements WombatKernel {
     extensionRegistry.register("sleep", this);
   }
 
+  public setRootBundle(bundle: IPosisBundle<{}>) {
+    if (!bundle.rootImageName) { throw new Error("Provided bundle has no root image"); }
+    this.rootImage = bundle.rootImageName;
+    this.rootInitMem = bundle.makeDefaultRootMemory || {};
+  }
+
+  public sleep(ticks: number): void {
+    if (this.currentPID === undefined) { return; }
+    this.processTable[this.currentPID].wakeTick = Game.time + ticks;
+    this.processTable[this.currentPID].status = ProcessStatus.SLEEP;
+  }
   public notify(pid: PosisPID, msg: any): void {
     const proc = this.getProcessById(pid);
     if (proc) { proc.notify(msg); }
@@ -142,6 +157,9 @@ export class BaseKernel implements WombatKernel {
       this.runProcess(this.rootProcesses[i]);
     }
     this.reclaimProcesses();
+    if (this.rootProcesses.length === 0 && this.rootImage) {
+      this.startProcess(this.rootImage, this.rootInitMem);
+    }
   }
 
   private runProcess(pid: PosisPID) {

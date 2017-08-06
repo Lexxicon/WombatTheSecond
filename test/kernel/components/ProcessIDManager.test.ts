@@ -15,4 +15,17 @@ describe("Process Id Manager", () => {
 
     assert.isTrue(id === secondId, `${id} is not ${secondId}`);
   });
+
+  it("can make unique id's", () => {
+    assert.isTrue(idManager.getId() !== idManager.getId());
+  });
+
+  it("can make unique id's after returning", () => {
+    const id = idManager.getId();
+    const id2 = idManager.getId();
+    idManager.returnId(id);
+    const id3 = idManager.getId();
+    assert.isTrue(id2 !== id3);
+  });
+
 });
