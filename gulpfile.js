@@ -1,5 +1,5 @@
 'use strict';
-
+const _ = require('lodash');
 const gutil = require('gulp-util');
 const clean = require('gulp-clean');
 const gulp = require('gulp');
@@ -15,9 +15,9 @@ const replace = require('gulp-replace');
 const download = require("gulp-download");
 const filter = require('gulp-filter');
 const mocha = require('gulp-mocha');
+const screeps = require('gulp-screeps');
 
 const gulpDotFlatten = require('./lib/gulp-dot-flatten.js');
-const gulpScreepsUpload = require('./lib/gulp-screeps-upload.js');
 
 /********/
 /* INIT */
@@ -38,7 +38,8 @@ try {
 
 try {
   let credentials = require('./credentials.json');
-  config.user = credentials.user;
+  if (!config.user) { config.user = {} }
+  _.merge(config.user, credentials.user);
 } catch (error) {
   if (error.code == "MODULE_NOT_FOUND") {
     gutil.log(gutil.colors.red('ERROR'), 'Could not find file "credentials.json"');
@@ -151,9 +152,16 @@ gulp.task('flatten', () => {
 gulp.task('push', () => {
   return gulp.src('dist/' + buildTarget + '/*.js')
     .pipe(gulpRename((path) => path.extname = ''))
-    .pipe(gulpScreepsUpload(config.user.email, config.user.password, buildConfig.branch, 0));
-});
-
+    .pipe(screeps({
+      email: config.user.email,
+      password: config.user.password,
+      branch: buildConfig.branch,
+      ptr: false,
+      host: 'screeps.com',
+      port: 443,
+      secure: true
+    }))
+})
 /**************/
 /* META-TASKS */
 /**************/
