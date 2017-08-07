@@ -169,6 +169,7 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
   }
 
   public run() {
+    this.runCount = 0;
     this.buildProcTree();
     for (let i = 0; i < this.rootProcesses.length; i++) {
       this.runProcess(this.rootProcesses[i]);
