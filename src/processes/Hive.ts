@@ -2,10 +2,15 @@ import { BasicProcess } from "../kernel/processes/BasicProcess";
 export interface HiveMemory {
   room: string;
 
+  state: HiveState;
+
   bootstrap: PosisPID;
-  harvester: PosisPID;
-  upgrader: PosisPID;
-  builder: PosisPID;
+}
+
+enum HiveState {
+  UNKNOWN,
+  BOOTSTRAP,
+  GROWTH,
 }
 
 export class HiveProcess extends BasicProcess<HiveMemory> {
@@ -14,7 +19,7 @@ export class HiveProcess extends BasicProcess<HiveMemory> {
   constructor(context: IPosisProcessContext) {
     super(context);
     _.defaultsDeep(this.memory, {
-
+      state: HiveState.UNKNOWN
     });
   }
 
@@ -23,7 +28,6 @@ export class HiveProcess extends BasicProcess<HiveMemory> {
   }
 
   public run(): void {
-    console.log("tick " + this.memory.room);
   }
 
 }
