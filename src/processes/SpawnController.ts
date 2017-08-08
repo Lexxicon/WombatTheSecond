@@ -18,7 +18,10 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
   }
 
   public run(): void {
-    this.sleep(100);
+    if (this.memory.spawnQueue.length === 0) {
+      this.sleep(100);
+      return;
+    }
   }
 
   public spawnCreep(opts: SpawnRequest): string {
