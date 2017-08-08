@@ -1,3 +1,4 @@
+import { posisInterface } from "../kernel/annotations/PosisInterface";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
 import { HiveProcess } from "./Hive";
 export interface OvermindMemory {
@@ -7,9 +8,8 @@ export interface OvermindMemory {
 export class OvermindProcess extends BasicProcess<OvermindMemory> {
   public static imageName = "Overmind/OvermindProcess";
 
-  constructor(context: IPosisProcessContext) {
-    super(context);
-  }
+  @posisInterface("wombatKernel")
+  public kernel: WombatKernel;
 
   public notify(msg: any): void {
     this.log.info(`Recieved msg ${msg}`);

@@ -28,6 +28,7 @@ export class HiveProcess extends BasicProcess<HiveMemory> {
   }
 
   public run(): void {
+    //
   }
 
 }

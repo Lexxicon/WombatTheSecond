@@ -15,13 +15,8 @@ export abstract class BasicProcess<MemType> implements WombatProcess {
   get log(): IPosisLogger { // Logger
     return this.context.log;
   }
-  get kernel(): WombatKernel {
-    const k = this.context.queryPosisInterface("wombatKernel");
-    if (k === undefined) { throw new Error("Failed to find kernel?"); }
-    return k;
-  }
 
-  constructor(private context: IPosisProcessContext) {
+  constructor(public context: IPosisProcessContext) {
   }
 
   public sleep(time: number) {
