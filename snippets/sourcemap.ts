@@ -8,6 +8,8 @@
  *
  * [06:40]
  * @lexxicon - and, just checking, do you have a `module.exports =` at the start of your .map?
+ *
+ * look into rollup vs webpack
  */
 
 export class ErrorMapper {

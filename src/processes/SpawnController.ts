@@ -1,7 +1,7 @@
 import { BasicProcess } from "../kernel/processes/BasicProcess";
 
 export interface SpawnControllerMemory {
-  spawnQueue: SpawnRequest[];
+  spawnQueue: Array<{ name: string; request: SpawnRequest }>;
 }
 
 export interface SpawnRequest {
@@ -24,8 +24,18 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
     }
   }
 
+  private generateName(): string {
+    let name = "";
+    name += Game.time.toString(16).slice(-4);
+    name += ":";
+    name += Math.floor((1 + Math.random()) * 0x10000).toString(16).slice(-4);
+    return name;
+  }
+
   public spawnCreep(opts: SpawnRequest): string {
-    throw new Error("Method not implemented.");
+    const req = { name: this.generateName(), request: opts };
+    this.memory.spawnQueue.push(req);
+    return req.name;
   }
 
   public getStatus(id: string): { status: EPosisSpawnStatus; message?: string | undefined; } {
