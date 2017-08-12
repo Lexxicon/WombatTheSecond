@@ -1,5 +1,6 @@
 import { posisInterface } from "../kernel/annotations/PosisInterface";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
+import { SpawnNotifier } from "./SpawnNotifier";
 
 export interface SpawnControllerMemory {
   spawnQueue: Array<{ name: string; request: SpawnRequest }>;
@@ -58,6 +59,7 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
           this.log.info("spawning: " + req.name);
           this.memory.spawnQueue.splice(i, 1);
           this.memory.spawnStatus[req.name] = EPosisSpawnStatus.SPAWNING;
+          this.kernel.startProcess(SpawnNotifier.imageName, { creep: req.name });
           break;
         }
       }
@@ -73,23 +75,7 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
         this.log.debug("removing " + name);
         delete Memory.creeps[name];
         delete spawnStatus[name];
-        // update spawned creeps status and notify owner
-      } else if (spawnStatus[name] === EPosisSpawnStatus.SPAWNING && !creep.spawning) {
-        this.log.debug("spawned: " + name);
-        spawnStatus[name] = EPosisSpawnStatus.SPAWNED;
-        this.notifyOfSpawn(name);
       }
-    }
-  }
-
-  private notifyOfSpawn(name: string): void {
-    try {
-      const creepPID = Game.creeps[name].memory.pid;
-      if (creepPID !== undefined) {
-        this.kernel.notify(creepPID, { type: "creepSpawn", creep: name } as SpawnMessage);
-      }
-    } catch (error) {
-      this.log.warn(`error notifying ${Game.creeps[name].memory.pid}`);
     }
   }
 

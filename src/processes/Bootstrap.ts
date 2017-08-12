@@ -25,12 +25,11 @@ export class BootstrapProcess extends BasicProcess<BootstrapMemory> {
       } else {
         const status = this.spawnExt.getStatus(id);
         switch (status.status) {
-          case EPosisSpawnStatus.ERROR:
-            this.memory.workerIds.splice(i, 1);
-            break;
-          case EPosisSpawnStatus.SPAWNED:
+          case EPosisSpawnStatus.QUEUED:
+          case EPosisSpawnStatus.SPAWNING:
             break;
           default:
+            this.memory.workerIds.splice(i, 1);
         }
       }
     }

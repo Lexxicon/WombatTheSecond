@@ -137,8 +137,9 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
   }
 
   public killProcess(pid: PosisPID): void {
-    this.logger.debug(`Killing [${pid}]`);
     const process = this.processTable[pid];
+    const name = process && process.name || "undefined";
+    this.logger.debug(`Killing [${pid}] ${name}`);
 
     const ids = Object.keys(this.processTable);
     for (let i = 0; i < ids.length; i++) {
@@ -150,7 +151,7 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
       process.status = ProcessStatus.KILLLED;
       process.endedTick = Game.time;
     }
-    this.logger.info(`Killed [${pid}]`);
+    this.logger.info(`Killed  [${pid}] ${name}`);
   }
 
   public getProcessById(pid: PosisPID): WombatProcess | undefined {
@@ -197,7 +198,7 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
           this.killProcess(pid);
           pInfo.status = ProcessStatus.ERROR;
           pInfo.error = e.stack || JSON.stringify(e);
-          this.logger.error(`error running [${pid}]:${pInfo.name}\n${e.stack}`);
+          this.logger.error(`error running [${pid}] ${pInfo.name}\n${e.stack}`);
         } finally {
           this.currentPID = "";
         }
