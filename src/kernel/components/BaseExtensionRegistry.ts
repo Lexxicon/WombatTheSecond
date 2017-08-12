@@ -6,7 +6,11 @@ const logger = LoggerFactory.getLogger("ExtensionRegistry", LogLevel.INFO);
 export class BaseExtensionRegistry implements WombatExtensionRegistry {
   private registry: { [interfaceId: string]: IPosisExtension } = {};
 
-  public register(interfaceId: string, extension: IPosisExtension): boolean {
+  constructor() {
+    this.register("extensionRegistry", this);
+  }
+
+  public register(interfaceId: keyof PosisInterfaces, extension: IPosisExtension): boolean {
     if (this.registry[interfaceId]) {
       logger.error(`Interface Id already registered: ${interfaceId}`);
       return false;
@@ -16,7 +20,7 @@ export class BaseExtensionRegistry implements WombatExtensionRegistry {
     return true;
   }
 
-  public unregister(interfaceId: string): boolean {
+  public unregister(interfaceId: keyof PosisInterfaces): boolean {
     if (this.registry[interfaceId]) {
       logger.debug(`Unregistered ${interfaceId}`);
       delete this.registry[interfaceId];

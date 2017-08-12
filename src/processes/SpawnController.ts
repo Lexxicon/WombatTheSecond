@@ -1,3 +1,4 @@
+import { posisInterface } from "../kernel/annotations/PosisInterface";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
 
 export interface SpawnControllerMemory {
@@ -12,53 +13,101 @@ export interface SpawnRequest {
   pid?: PosisPID | undefined;
 }
 
+export interface SpawnMessage {
+  type: string;
+  creep: CreepNameOrString;
+}
+
 export class SpawnController extends BasicProcess<SpawnControllerMemory> implements IPosisSpawnExtension {
+  public static imageName: string = "Overmind/SpawnController";
+
+  @posisInterface("extensionRegistry")
+  public extensionReg: WombatExtensionRegistry;
+
+  @posisInterface("wombatKernel")
+  public kernel: WombatKernel;
+
+  constructor(context: IPosisProcessContext) {
+    super(context);
+    this.extensionReg.register("spawn", this);
+  }
 
   public notify(msg: any): void {
+    this.log.info("interupting sleep");
     this.sleep(0);
   }
 
   public run(): void {
-    for (const name in Memory.creeps) {
-      if (!Game.creeps[name]) {
-        delete Memory.creeps[name];
-        delete this.memory.spawnStatus[name];
-      }
-    }
+    this.cleanUpMemory();
 
     if (this.memory.spawnQueue.length === 0) {
       this.sleep(100);
       return;
     }
+
     const spawns = _.filter(Game.spawns, (spawn: Spawn) => !spawn.spawning);
 
     for (let i = this.memory.spawnQueue.length - 1; i >= 0; i--) {
       const req = this.memory.spawnQueue[i];
       const rankedSpawns = this.rankSpawns(spawns, req.request);
-      const spawnCost = this.calculateBodyCost(req.request.body[0]);
 
       for (let j = 0; j < rankedSpawns.length; j++) {
-        if (rankedSpawns[j].rank - spawnCost >= 0) {
-          const rslt = rankedSpawns[j].spawn.createCreep(req.request.body[0], req.name);
-          if (_.isString(rslt)) {
-            spawns.splice(rankedSpawns[j].index, 1);
-            this.memory.spawnQueue.splice(i, 1);
-            this.memory.spawnStatus[req.name] = EPosisSpawnStatus.SPAWNING;
-            break;
-          }
+        const rslt = rankedSpawns[j].spawn.createCreep(req.request.body[0], req.name, { pid: req.request.pid });
+        if (_.isString(rslt)) {
+          spawns.splice(rankedSpawns[j].index, 1);
+          this.log.info("spawning: " + req.name);
+          this.memory.spawnQueue.splice(i, 1);
+          this.memory.spawnStatus[req.name] = EPosisSpawnStatus.SPAWNING;
+          break;
         }
       }
+    }
+  }
+
+  private cleanUpMemory(): void {
+    const spawnStatus = this.memory.spawnStatus;
+    for (const name in Memory.creeps) {
+      const creep = Game.creeps[name];
+      // purge dead creeps
+      if (!creep && spawnStatus[name] !== EPosisSpawnStatus.SPAWNING) {
+        this.log.debug("removing " + name);
+        delete Memory.creeps[name];
+        delete spawnStatus[name];
+        // update spawned creeps status and notify owner
+      } else if (spawnStatus[name] === EPosisSpawnStatus.SPAWNING && !creep.spawning) {
+        this.log.debug("spawned: " + name);
+        spawnStatus[name] = EPosisSpawnStatus.SPAWNED;
+        this.notifyOfSpawn(name);
+      }
+    }
+  }
+
+  private notifyOfSpawn(name: string): void {
+    try {
+      const creepPID = Game.creeps[name].memory.pid;
+      if (creepPID !== undefined) {
+        this.kernel.notify(creepPID, { type: "creepSpawn", creep: name } as SpawnMessage);
+      }
+    } catch (error) {
+      this.log.warn(`error notifying ${Game.creeps[name].memory.pid}`);
     }
   }
 
   private rankSpawns(spawns: StructureSpawn[], request: SpawnRequest):
     Array<{ index: number, rank: number, spawn: StructureSpawn }> {
 
-    return _.map(spawns, (spawn: Spawn, index: number) => {
-      const dist = Game.map.getRoomLinearDistance(spawn.room.name, request.rooms[0]);
-      const rank = spawn.room.energyAvailable - (dist * 50);
-      return { index, rank, spawn };
-    }).sort((s) => s.rank);
+    const spawnCost = this.calculateBodyCost(request.body[0]);
+    return _(spawns)
+      // spawn doesn't have enough to fulfill request
+      .filter((s) => s.room.energyAvailable >= spawnCost)
+      // rank spawn based on distance and available energy
+      .map((spawn: Spawn, index: number) => {
+        const dist = Game.map.getRoomLinearDistance(spawn.room.name, request.rooms[0]);
+        const rank = spawn.room.energyAvailable - (dist * 50);
+        return { index, rank, spawn };
+      })
+      // order by rank
+      .sort((s) => s.rank).value();
   }
 
   private calculateBodyCost(body: BodyPartType[]): number {
@@ -82,14 +131,22 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
     const req = { name: this.generateName(), request: opts };
     this.memory.spawnQueue.push(req);
     this.memory.spawnStatus[req.name] = EPosisSpawnStatus.QUEUED;
+    // odds are we are sleeping and this is the first request, so wake us up
+    if (this.memory.spawnQueue.length === 1) {
+      this.sleep(0);
+    }
     return req.name;
   }
 
   public getStatus(id: string): { status: EPosisSpawnStatus; message?: string | undefined; } {
-    const stat = { status: this.memory.spawnStatus[id] || EPosisSpawnStatus.ERROR };
+    const stat = { status: this.memory.spawnStatus[id], message: "" };
     if (stat.status === EPosisSpawnStatus.SPAWNING && Game.creeps[id] && !Game.creeps[id].spawning) {
       this.memory.spawnStatus[id] = EPosisSpawnStatus.SPAWNED;
       stat.status = EPosisSpawnStatus.SPAWNED;
+    }
+    if (stat.status === undefined) {
+      stat.status = EPosisSpawnStatus.ERROR;
+      stat.message = "Missing from memory";
     }
     return stat;
   }

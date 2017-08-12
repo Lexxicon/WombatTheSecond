@@ -22,7 +22,7 @@ export abstract class BasicProcess<MemType> implements WombatProcess {
   public sleep(time: number) {
     const k = this.context.queryPosisInterface("sleep");
     if (k === undefined) { throw new Error("Failed to find sleeper?"); }
-    k.sleep(time);
+    (k as any).sleep(time, this.id);
   }
 
   public abstract notify(msg: any): void;

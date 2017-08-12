@@ -14,12 +14,17 @@ const extRegistry = new BaseExtensionRegistry();
 const idManager = new ProcessIDManager(() => (Memory.pids || (Memory.pids = {})));
 const kernel = new BaseKernel(pRegistry, extRegistry, idManager, () => (Memory.kernel || (Memory.kernel = {})));
 
+extRegistry.register("wombatKernel", kernel);
+extRegistry.register("baseKernel", kernel);
+extRegistry.register("sleep", kernel);
+
+testBundle.install(pRegistry);
+
 if (Memory.revision !== REVISION || Memory.buildTime !== BUILD_TIME) {
   Memory.revision = REVISION;
   Memory.buildTime = BUILD_TIME;
   log.info(`loading revision: ${REVISION} : ${BUILD_TIME}`);
-  // install and start the testing process to make sure we didn't bork something
-  testBundle.install(pRegistry);
+  // start the testing process to make sure we didn't bork something
   kernel.startProcess(testBundle.rootImageName || "", { maxRunTime: 1 });
 }
 

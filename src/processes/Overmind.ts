@@ -1,7 +1,9 @@
 import { posisInterface } from "../kernel/annotations/PosisInterface";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
 import { HiveProcess } from "./Hive";
+import { SpawnController } from "./SpawnController";
 export interface OvermindMemory {
+  spawnController: PosisPID | undefined;
   hives: { [hiveName: string]: PosisPID; };
 }
 
@@ -39,6 +41,10 @@ export class OvermindProcess extends BasicProcess<OvermindMemory> {
   }
 
   public run(): void {
+    if (!this.memory.spawnController || !this.kernel.getProcessById(this.memory.spawnController)) {
+      const result = this.kernel.startProcess(SpawnController.imageName, { spawnQueue: [], spawnStatus: {} });
+      this.memory.spawnController = (result || { pid: undefined }).pid;
+    }
     this.findNewHives();
     this.purgeOldHives();
   }

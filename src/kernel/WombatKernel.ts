@@ -69,10 +69,6 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     this.processRegistry = processRegistry;
     this.extensionRegistry = extensionRegistry;
     this.idManager = idManager;
-
-    extensionRegistry.register("wombatKernel", this);
-    extensionRegistry.register("baseKernel", this);
-    extensionRegistry.register("sleep", this);
   }
 
   public setRootBundle(bundle: IPosisBundle<{}>) {
@@ -81,10 +77,10 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     this.rootInitMem = (bundle.makeDefaultRootMemory && bundle.makeDefaultRootMemory()) || {};
   }
 
-  public sleep(ticks: number): void {
-    if (this.currentPID === undefined) { return; }
-    this.processTable[this.currentPID].wakeTick = Game.time + ticks;
-    this.processTable[this.currentPID].status = ProcessStatus.SLEEP;
+  public sleep(ticks: number, pid?: PosisPID | undefined): void {
+    if (this.currentPID === undefined && pid === undefined) { return; }
+    this.processTable[pid || this.currentPID].wakeTick = Game.time + ticks;
+    this.processTable[pid || this.currentPID].status = ProcessStatus.SLEEP;
   }
 
   public notify(pid: PosisPID, msg: any): void {
@@ -218,7 +214,7 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     const pids = _.keys(this.processTable);
     for (let i = 0; i < pids.length; i++) {
       const ctx = this.processTable[pids[i]];
-      if (!this.isAlive(ctx.status) && (!ctx.endedTick || Game.time - ctx.endedTick > 50)) {
+      if (!this.isAlive(ctx.status) && (!ctx.endedTick || Game.time - ctx.endedTick > 20)) {
         this.logger.debug("reclaiming [" + ctx.id + "] :" + ctx.name);
         delete this.processTable[ctx.id];
         delete this.processMemory[ctx.id];
@@ -262,26 +258,31 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     if (this.processCache[id]) {
       return this.processCache[id];
     }
+    try {
 
-    const self = this;
-    const pinfo = self.processTable[id];
+      const self = this;
+      const pinfo = self.processTable[id];
 
-    const pCtx: IPosisProcessContext = {
-      id,
-      imageName: pinfo.name,
-      get parentId() { return self.processTable[id].id; },
-      get memory() { return (self.processMemory[id] || (self.processMemory[id] = {})); },
-      log: LoggerFactory.getLogger(`[${pinfo.id}]${pinfo.name}`),
-      queryPosisInterface: self.extensionRegistry.getExtension.bind(self.extensionRegistry)
-    };
+      const pCtx: IPosisProcessContext = {
+        id,
+        imageName: pinfo.name,
+        get parentId() { return self.processTable[id].id; },
+        get memory() { return (self.processMemory[id] || (self.processMemory[id] = {})); },
+        log: LoggerFactory.getLogger(`[${pinfo.id}]${pinfo.name}`),
+        queryPosisInterface: self.extensionRegistry.getExtension.bind(self.extensionRegistry)
+      };
 
-    const process = this.processRegistry.getNewProcess(pCtx);
-    if (!process) {
-      this.idManager.returnId(id);
-      throw new Error("Failed to create process");
+      const process = this.processRegistry.getNewProcess(pCtx);
+      if (!process) {
+        this.idManager.returnId(id);
+        throw new Error("Failed to create process");
+      }
+
+      this.processCache[id] = process;
+      return process;
+    } catch (error) {
+      this.logger.warn(`Failed to create ${id}`);
     }
-
-    this.processCache[id] = process;
-    return process;
+    return undefined;
   }
 }

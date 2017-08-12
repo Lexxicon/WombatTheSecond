@@ -6,3 +6,7 @@ interface Memory {
   kernel: {};
   pids: {};
 }
+
+interface CreepMemory {
+  pid?: PosisPID;
+}
