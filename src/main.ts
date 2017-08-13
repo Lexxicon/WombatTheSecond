@@ -17,6 +17,7 @@ const kernel = new BaseKernel(pRegistry, extRegistry, idManager, () => (Memory.k
 extRegistry.register("wombatKernel", kernel);
 extRegistry.register("baseKernel", kernel);
 extRegistry.register("sleep", kernel);
+extRegistry.register("wombatSleepExtension", kernel);
 
 testBundle.install(pRegistry);
 

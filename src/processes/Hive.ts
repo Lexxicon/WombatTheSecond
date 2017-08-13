@@ -28,7 +28,7 @@ export class HiveProcess extends BasicProcess<HiveMemory> {
     });
   }
 
-  public notify(msg: any): void {
+  public notify(msg: WombatMessage): void {
     this.log.debug(`recieved message ${msg}`);
   }
 

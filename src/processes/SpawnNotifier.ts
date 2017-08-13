@@ -4,11 +4,6 @@ export interface NotifierMemory {
   creep: CreepNameOrString;
 }
 
-export interface SpawnMessage {
-  type: string;
-  creep: CreepNameOrString;
-}
-
 export class SpawnNotifier extends BasicProcess<NotifierMemory> {
   public static imageName: string = "Overmind/SpawnNotifier";
   public context: IPosisProcessContext;
@@ -27,7 +22,7 @@ export class SpawnNotifier extends BasicProcess<NotifierMemory> {
       try {
         const creepPID = Game.creeps[this.memory.creep as string].memory.pid;
         if (creepPID !== undefined) {
-          this.kernel.notify(creepPID, { type: "creepSpawn", creep: creep.name } as SpawnMessage);
+          this.kernel.notify(creepPID, { type: "spawnMessage", creep: creep.name } as SpawnMessage);
         }
       } catch (error) {
         this.log.warn(`error notifying ${this.memory.creep}. ${error}`);

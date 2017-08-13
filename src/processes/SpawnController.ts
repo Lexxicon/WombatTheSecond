@@ -14,11 +14,6 @@ export interface SpawnRequest {
   pid?: PosisPID | undefined;
 }
 
-export interface SpawnMessage {
-  type: string;
-  creep: CreepNameOrString;
-}
-
 export class SpawnController extends BasicProcess<SpawnControllerMemory> implements IPosisSpawnExtension {
   public static imageName: string = "Overmind/SpawnController";
 
@@ -33,7 +28,7 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
     this.extensionReg.register("spawn", this);
   }
 
-  public notify(msg: any): void {
+  public notify(msg: WombatMessage): void {
     this.log.info("interupting sleep");
     this.sleep(0);
   }

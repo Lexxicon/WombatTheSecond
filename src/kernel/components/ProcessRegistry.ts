@@ -28,7 +28,7 @@ export class ProcessRegistry implements WombatProcessRegistry {
     const posisP = new this.registry[context.imageName](context);
 
     if (!this.isWombatProcess(posisP)) {
-      (posisP as any).notify = (msg: any) => {/** */ };
+      (posisP as any).notify = (msg: WombatMessage) => {/** */ };
     }
 
     return posisP as WombatProcess;

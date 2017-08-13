@@ -13,7 +13,7 @@ export class OvermindProcess extends BasicProcess<OvermindMemory> {
   @posisInterface("wombatKernel")
   public kernel: WombatKernel;
 
-  public notify(msg: any): void {
+  public notify(msg: WombatMessage): void {
     this.log.info(`Recieved msg ${msg}`);
   }
 

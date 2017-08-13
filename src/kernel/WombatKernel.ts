@@ -20,6 +20,8 @@ interface PInfo {
   process: WombatProcess;
 }
 
+const RECLAIM_TIME = 50;
+
 export class BaseKernel implements WombatKernel, IPosisSleepExtension {
   private logger: IPosisLogger = LoggerFactory.getLogger("Kernel");
 
@@ -83,9 +85,14 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     this.processTable[pid || this.currentPID].status = ProcessStatus.SLEEP;
   }
 
-  public notify(pid: PosisPID, msg: any): void {
+  public notify(pid: PosisPID, msg: WombatMessage): void {
     const proc = this.getProcessById(pid);
-    if (proc) { proc.notify(msg); }
+    const cid = this.currentPID;
+    try {
+      if (proc) { this.currentPID = pid; proc.notify(msg); }
+    } finally {
+      this.currentPID = cid;
+    }
   }
 
   public startProcess(imageName: string, startContext: any): PInfo | undefined {
@@ -189,7 +196,7 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
           if (process) {
             this.currentPID = pid;
             if (process.run()) {
-              this.logger.debug(`${pid} finished running`);
+              this.logger.debug(`[${pid}] ${pInfo.name} finished running`);
               this.killProcess(pid);
               pInfo.status = ProcessStatus.DONE;
             }
@@ -215,7 +222,7 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
     const pids = _.keys(this.processTable);
     for (let i = 0; i < pids.length; i++) {
       const ctx = this.processTable[pids[i]];
-      if (!this.isAlive(ctx.status) && (!ctx.endedTick || Game.time - ctx.endedTick > 20)) {
+      if (!this.isAlive(ctx.status) && (!ctx.endedTick || Game.time - ctx.endedTick > RECLAIM_TIME)) {
         this.logger.debug("reclaiming [" + ctx.id + "] :" + ctx.name);
         delete this.processTable[ctx.id];
         delete this.processMemory[ctx.id];

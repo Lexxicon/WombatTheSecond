@@ -1,4 +1,5 @@
 import { BootstrapProcess } from "./Bootstrap";
+import { EmergencyWorkerProcess } from "./EmergencyWorker";
 import { HiveProcess } from "./Hive";
 import { OvermindMemory, OvermindProcess } from "./Overmind";
 import { SpawnController } from "./SpawnController";
@@ -12,6 +13,7 @@ export const bundle: IPosisBundle<OvermindMemory> = {
     registry.register(SpawnController.imageName, SpawnController);
     registry.register(BootstrapProcess.imageName, BootstrapProcess);
     registry.register(SpawnNotifier.imageName, SpawnNotifier);
+    registry.register(EmergencyWorkerProcess.imageName, EmergencyWorkerProcess);
   },
 
   rootImageName: OvermindProcess.imageName,
