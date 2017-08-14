@@ -49,16 +49,22 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
   private memoryRoot: { kernel: KernelMemory };
 
   get memory(): KernelMemory {
-    return this.memoryRoot.kernel || (this.memoryRoot.kernel = { processTable: {}, processMemory: {} });
+    return this.memoryRoot.kernel
+      || (this.memoryRoot.kernel = {
+        processTable: {},
+        processMemory: {}
+      });
   }
 
   /** all processes metadata */
   get processTable(): ProcessTable {
-    return this.memory.processTable || (this.memory.processTable = {});
+    return this.memory.processTable
+      || (this.memory.processTable = {});
   }
 
   get processMemory(): ProcessMemory {
-    return this.memory.processMemory || (this.memory.processMemory = {});
+    return this.memory.processMemory
+      || (this.memory.processMemory = {});
   }
 
   constructor(
@@ -74,7 +80,9 @@ export class BaseKernel implements WombatKernel, IPosisSleepExtension {
   }
 
   public setRootBundle(bundle: IPosisBundle<{}>) {
-    if (!bundle.rootImageName) { throw new Error("Provided bundle has no root image"); }
+    if (!bundle.rootImageName) {
+      throw new Error("Provided bundle has no root image");
+    }
     this.rootImage = bundle.rootImageName;
     this.rootInitMem = (bundle.makeDefaultRootMemory && bundle.makeDefaultRootMemory()) || {};
   }
