@@ -41,6 +41,7 @@ export class HiveProcess extends BasicProcess<HiveMemory> {
       } as BootstrapMemory);
       if (result) {
         this.memory.bootstrap = result.pid;
+        this.memory.state = HiveState.BOOTSTRAP;
       }
     }
   }
