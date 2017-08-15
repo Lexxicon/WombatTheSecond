@@ -1,5 +1,6 @@
 import { posisInterface } from "../kernel/annotations/PosisInterface";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
+import { ArchitectMemory, ArchitectProcess } from "./ArchitectProcess";
 import { BootstrapMemory, BootstrapProcess } from "./Bootstrap";
 export interface HiveMemory {
   room: string;
@@ -7,6 +8,8 @@ export interface HiveMemory {
   state: HiveState;
 
   bootstrap: PosisPID;
+
+  architect: PosisPID;
 }
 
 enum HiveState {
@@ -33,7 +36,7 @@ export class HiveProcess extends BasicProcess<HiveMemory> {
   }
 
   public run(): void {
-    if (this.memory.bootstrap === undefined) {
+    if (this.memory.bootstrap === undefined || !this.kernel.getProcessById(this.memory.bootstrap)) {
       this.log.debug("starting bootstrap");
       const result = this.kernel.startProcess(BootstrapProcess.imageName, {
         room: this.memory.room,
@@ -42,6 +45,15 @@ export class HiveProcess extends BasicProcess<HiveMemory> {
       if (result) {
         this.memory.bootstrap = result.pid;
         this.memory.state = HiveState.BOOTSTRAP;
+      }
+    }
+    if (this.memory.architect === undefined || !this.kernel.getProcessById(this.memory.architect)) {
+      const result = this.kernel.startProcess(
+        ArchitectProcess.imageName, {
+          room: this.memory.room
+        } as ArchitectMemory);
+      if (result) {
+        this.memory.architect = result.pid;
       }
     }
   }

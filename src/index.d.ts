@@ -11,5 +11,10 @@ interface CreepMemory {
   pid?: PosisPID;
 }
 
-declare const ROOM_WIDTH = 50;
-declare const ROOM_HEIGHT = 50;
+declare module NodeJS {
+  interface Global {
+    TERRAIN_PLAIN: TerrainType;
+    TERRAIN_SWAMP: TerrainType;
+    TERRAIN_WALL: TerrainType;
+  }
+}

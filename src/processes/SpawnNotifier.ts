@@ -6,7 +6,6 @@ export interface NotifierMemory {
 
 export class SpawnNotifier extends BasicProcess<NotifierMemory> {
   public static imageName: string = "Overmind/SpawnNotifier";
-  public context: IPosisProcessContext;
 
   @posisInterface("wombatKernel")
   public kernel: WombatKernel;
