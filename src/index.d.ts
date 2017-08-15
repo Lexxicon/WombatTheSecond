@@ -10,3 +10,6 @@ interface Memory {
 interface CreepMemory {
   pid?: PosisPID;
 }
+
+declare const ROOM_WIDTH = 50;
+declare const ROOM_HEIGHT = 50;
