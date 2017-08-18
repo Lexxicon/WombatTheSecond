@@ -62,12 +62,12 @@ export class SourceExtractionProcess extends BasicProcess<SourceExtractionMemory
   public run(): void {
     const source = Game.getObjectById(this.memory.souceId);
     if (source === undefined || source === null) {
-      this.log.info("lost vision on source?");
+      this.log.warn("lost vision on source?");
       return;
     }
     const storage = Game.getObjectById(this.memory.storageId)!;
     if (storage === undefined || storage === null) {
-      this.log.info("lost vision on storage?");
+      this.log.warn("lost vision on storage?");
       return;
     }
     this.initMemory(storage, source);
