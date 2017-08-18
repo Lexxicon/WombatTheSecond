@@ -64,10 +64,10 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
       }
     }
   }
-
 }
+
 const FORT_LAYOUT = {
-  [STRUCTURE_ROAD as any]: [
+  [STRUCTURE_ROAD]: [
     { x: -5, y: -6 },
     { x: -4, y: -6 },
     { x: -3, y: -6 },
@@ -137,7 +137,7 @@ const FORT_LAYOUT = {
     { x: 3, y: 6 },
     { x: 4, y: 6 },
   ],
-  [STRUCTURE_EXTENSION as any]: [
+  [STRUCTURE_EXTENSION]: [
     { x: -2, y: -6 },
     { x: 2, y: -6 },
     { x: -4, y: -5 },
@@ -199,13 +199,13 @@ const FORT_LAYOUT = {
     { x: -2, y: 6 },
     { x: 2, y: 6 },
   ],
-  [STRUCTURE_POWER_SPAWN as any]: [
+  [STRUCTURE_POWER_SPAWN]: [
     { x: -5, y: -5 },
   ],
-  nuker: [
+  [STRUCTURE_NUKER]: [
     { x: 5, y: -5 },
   ],
-  tower: [
+  [STRUCTURE_TOWER]: [
     { x: -2, y: -2 },
     { x: 2, y: -2 },
     { x: 0, y: -1 },
@@ -213,21 +213,21 @@ const FORT_LAYOUT = {
     { x: 1, y: 0 },
     { x: -2, y: 2 },
   ],
-  spawn: [
+  [STRUCTURE_SPAWN]: [
     { x: 0, y: -2 },
     { x: -2, y: 0 },
     { x: 2, y: 0 },
   ],
-  storage: [
+  [STRUCTURE_STORAGE]: [
     { x: 0, y: 0 },
   ],
-  link: [
+  [STRUCTURE_LINK]: [
     { x: 0, y: 2 },
   ],
-  terminal: [
+  [STRUCTURE_TERMINAL]: [
     { x: 2, y: 2 },
   ],
-  lab: [
+  [STRUCTURE_LAB]: [
     { x: 3, y: 2 },
     { x: 4, y: 2 },
     { x: 2, y: 3 },
@@ -239,7 +239,7 @@ const FORT_LAYOUT = {
     { x: 3, y: 5 },
     { x: 4, y: 5 },
   ],
-  observer: [
+  [STRUCTURE_OBSERVER]: [
     { x: -5, y: 5 },
   ]
 };

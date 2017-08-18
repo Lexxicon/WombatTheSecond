@@ -1,7 +1,7 @@
 import { posisInterface } from "../kernel/annotations/PosisInterface";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
 export interface NotifierMemory {
-  creep: CreepNameOrString;
+  creep: string;
 }
 
 export class SpawnNotifier extends BasicProcess<NotifierMemory> {

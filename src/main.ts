@@ -8,11 +8,12 @@ import { BaseKernel } from "./kernel/WombatKernel";
 import { bundle as overmindBundle } from "./processes/OvermindBundle";
 
 const log = LoggerFactory.getLogger("main");
+const kernelMemory = () => (Memory.kernel || (Memory.kernel = {}));
 
 const pRegistry = new ProcessRegistry();
 const extRegistry = new BaseExtensionRegistry();
 const idManager = new ProcessIDManager(() => (Memory.pids || (Memory.pids = {})));
-const kernel = new BaseKernel(pRegistry, extRegistry, idManager, () => (Memory.kernel || (Memory.kernel = {})));
+const kernel = new BaseKernel(pRegistry, extRegistry, idManager, kernelMemory);
 
 extRegistry.register("wombatKernel", kernel);
 extRegistry.register("baseKernel", kernel);

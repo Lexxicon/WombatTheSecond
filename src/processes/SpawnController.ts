@@ -9,7 +9,7 @@ export interface SpawnControllerMemory {
 
 export interface SpawnRequest {
   rooms: string[];
-  body: BodyPartType[][];
+  body: BodyPartConstant[][];
   priority?: number | undefined;
   pid?: PosisPID | undefined;
 }
@@ -91,10 +91,10 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
       .sort((s) => s.rank).value();
   }
 
-  private calculateBodyCost(body: BodyPartType[]): number {
+  private calculateBodyCost(body: BodyPartConstant[]): number {
     let cost = 0;
     for (let i = 0; i < body.length; i++) {
-      cost += BODYPART_COST[body[i] as string];
+      cost += BODYPART_COST[body[i]];
     }
     return cost;
   }

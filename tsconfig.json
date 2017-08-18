@@ -13,7 +13,8 @@
   "compileOnSave": false,
   "files": [
     "lib/WombatPOSIS/dist/index.d.ts",
-    "lib/screeps-typed/dist/screeps-typed.d.ts",
+    // "lib/screeps-typed/dist/screeps-typed.d.ts",
+    "lib/typed-screeps/dist/screeps.d.ts",
     "lib/traveler/index.d.ts"
   ],
   "include": [

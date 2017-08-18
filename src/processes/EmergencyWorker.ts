@@ -3,12 +3,12 @@ import { BasicProcess } from "../kernel/processes/BasicProcess";
 
 export interface EmergencyWorkerMemory {
   room: string;
-  workerId: CreepNameOrString;
+  workerId: string;
   state: State;
   job?: Job;
-  sourceTarget?: SourceId;
-  spawnTarget?: StructureId<StructureSpawn>;
-  constructionTarget?: ConstructionSiteId;
+  sourceTarget?: string;
+  spawnTarget?: string;
+  constructionTarget?: string;
 }
 
 enum State {
@@ -77,8 +77,8 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
     }
   }
 
-  private find<T extends RoomObject & { id: ObjectId<T> }>(lookup: FindType<T>): ObjectId<T> | undefined {
-    const results = Game.rooms[this.memory.room].find(lookup);
+  private find(lookup: FindConstant): string | undefined {
+    const results = Game.rooms[this.memory.room].find<Structure>(lookup);
     if (results.length > 0) {
       return results[0].id;
     } else {
@@ -102,7 +102,7 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
     if (this.memory.spawnTarget === undefined) {
       this.log.warn("no spawn target id");
     } else {
-      const spawn = Game.getObjectById(this.memory.spawnTarget);
+      const spawn = Game.getObjectById<Spawn>(this.memory.spawnTarget);
       if (spawn === undefined || spawn === null) {
         this.log.warn("failed to lookup room spawn");
         delete this.memory.spawnTarget;
@@ -124,7 +124,7 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
     if (this.memory.constructionTarget === undefined) {
       this.log.debug("no construction target id");
     } else {
-      const site = Game.getObjectById(this.memory.constructionTarget);
+      const site = Game.getObjectById<ConstructionSite>(this.memory.constructionTarget);
       if (site !== undefined && site !== null) {
         if (creep.build(site) === ERR_NOT_IN_RANGE) {
           creep.moveTo(site);
@@ -137,7 +137,7 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
 
   private doGather(creep: Creep): boolean {
     if (this.memory.sourceTarget === undefined) {
-      const source = creep.pos.findClosestByPath(FIND_SOURCES);
+      const source = creep.pos.findClosestByPath<Source>(FIND_SOURCES);
       if (source) {
         this.memory.sourceTarget = source.id;
       } else {
@@ -146,7 +146,7 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
       }
     }
 
-    const target = Game.getObjectById(this.memory.sourceTarget);
+    const target = Game.getObjectById<Source>(this.memory.sourceTarget);
     if (target) {
       if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);

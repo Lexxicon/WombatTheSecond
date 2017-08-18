@@ -4,5 +4,5 @@ interface Messages {
 }
 
 interface SpawnMessage extends WombatMessage {
-  creep: CreepNameOrString;
+  creep: string;
 }

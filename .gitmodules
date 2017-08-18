@@ -1,6 +1,3 @@
-[submodule "lib/screeps-typed"]
-	path = lib/screeps-typed
-	url = https://github.com/wmulligan/screeps-typed.git
 [submodule "lib/traveler"]
 	path = lib/traveler
 	url = https://github.com/bonzaiferroni/Traveler.git
@@ -10,3 +7,6 @@
 [submodule "lib/screeps/common"]
 	path = lib/screeps/common
 	url = https://github.com/screeps/common.git
+[submodule "lib/typed-screeps"]
+	path = lib/typed-screeps
+	url = https://github.com/screepers/typed-screeps.git

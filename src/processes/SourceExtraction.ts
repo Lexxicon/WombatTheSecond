@@ -3,16 +3,16 @@ import { BasicProcess } from "../kernel/processes/BasicProcess";
 
 export interface SourceExtractionMemory {
   room: string;
-  souceId: SourceId;
-  containerId: StructureId<Container>;
+  souceId: string;
+  containerId: string;
   workerSpot: RoomPosition;
 
-  worker: CreepName;
+  worker: string;
   prespawn: number;
 
-  hauler: CreepName;
+  hauler: string;
 
-  storageId: StructureId<Structure>;
+  storageId: string;
   distanceToStorage: number;
 }
 
@@ -46,7 +46,7 @@ export class SourceExtractionProcess extends BasicProcess<SourceExtractionMemory
       this.memory.workerSpot = path.path[Math.max(0, path.path.length - 2)];
     }
     if (this.memory.containerId === undefined) {
-      const result = Game.rooms[this.memory.room].lookForAt(LOOK_STRUCTURES, this.memory.workerSpot);
+      const result = Game.rooms[this.memory.room].lookForAt<Structure>(LOOK_STRUCTURES, this.memory.workerSpot);
       if (result === undefined || result === null || result.length === 0) {
         // no container?
       } else {
@@ -60,12 +60,12 @@ export class SourceExtractionProcess extends BasicProcess<SourceExtractionMemory
   }
 
   public run(): void {
-    const source = Game.getObjectById(this.memory.souceId);
+    const source = Game.getObjectById<Source>(this.memory.souceId);
     if (source === undefined || source === null) {
       this.log.warn("lost vision on source?");
       return;
     }
-    const storage = Game.getObjectById(this.memory.storageId)!;
+    const storage = Game.getObjectById<Storage>(this.memory.storageId)!;
     if (storage === undefined || storage === null) {
       this.log.warn("lost vision on storage?");
       return;
