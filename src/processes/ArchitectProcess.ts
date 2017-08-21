@@ -7,8 +7,21 @@ export interface ArchitectMemory {
 }
 
 const BASE_SIZE = 13;
-function flattenRoomIndex(x: number, y: number): number {
+const HALF_BASE = Math.ceil(BASE_SIZE / 2);
+
+function roomIndex(x: number, y: number): number {
   return (x * ROOM_WIDTH) + y;
+}
+
+function isRoomEdge(x: number, y: number): boolean {
+  return x === 0
+    || y === 0
+    || x === (ROOM_WIDTH - 1)
+    || y === (ROOM_HEIGHT - 1);
+}
+
+function minAdjacent(x: number, y: number, score: number[][]): number {
+  return Math.min(score[x - 1][y], score[x][y - 1], score[x - 1][y - 1]);
 }
 
 export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
@@ -16,6 +29,17 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
 
   public notify(msg: WombatMessage): void {
     throw new Error("Not implemented yet.");
+  }
+
+  private testRoomSpot(x: number, y: number, sqValues: number[][], lookResult: Array<LookAtResultWithPos<"terrain">>) {
+    if (isRoomEdge(x, y) || lookResult[roomIndex(x, y)].terrain === TERRAIN_WALL) {
+      sqValues[x][y] = 0;
+    } else {
+      sqValues[x][y] = minAdjacent(x, y, sqValues) + 1;
+      if (sqValues[x][y] >= BASE_SIZE) {
+        this.memory.baseSpots.push({ x: (x - HALF_BASE), y: (y - HALF_BASE) });
+      }
+    }
   }
 
   private findBaseSpots() {
@@ -26,29 +50,12 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     if (!(lookResult instanceof Array)) {
       return;
     }
-    lookResult.sort((a, b) => flattenRoomIndex(a.x, a.y) - flattenRoomIndex(b.x, b.y));
+    lookResult.sort((a, b) => roomIndex(a.x, a.y) - roomIndex(b.x, b.y));
 
     for (let x = 0; x < ROOM_WIDTH; x++) {
       sqValues[x] = [];
       for (let y = 0; y < ROOM_HEIGHT; y++) {
-        if (x === 0
-          || y === 0
-          || x === (ROOM_WIDTH - 1)
-          || y === (ROOM_HEIGHT - 1)
-          || lookResult[flattenRoomIndex(x, y)].terrain === TERRAIN_WALL) {
-          sqValues[x][y] = 0;
-        } else {
-          sqValues[x][y] = Math.min(
-            sqValues[x - 1][y],
-            sqValues[x][y - 1],
-            sqValues[x - 1][y - 1]) + 1;
-          if (sqValues[x][y] >= BASE_SIZE) {
-            this.memory.baseSpots.push({
-              x: (x - Math.ceil(BASE_SIZE / 2)),
-              y: (y - Math.ceil(BASE_SIZE / 2))
-            });
-          }
-        }
+        this.testRoomSpot(x, y, sqValues, lookResult);
       }
     }
   }
