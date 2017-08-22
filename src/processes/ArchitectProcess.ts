@@ -98,23 +98,39 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     return this.findCenter();
   }
 
+  private findBaseCenter() {
+    const mySpawns = Game.rooms[this.memory.room].find<Spawn>(FIND_MY_SPAWNS);
+    if (mySpawns.length > 0) {
+      const spawnP = mySpawns[0].pos;
+      const found = this.findCenterWithSpawn(spawnP);
+      if (found) {
+        this.memory.baseCenter = found;
+      }
+    } else {
+      const found = this.findCenter();
+      if (found) {
+        this.memory.baseCenter = found;
+      }
+    }
+  }
+
+  private placeNextSite() {
+    const room = Game.rooms[this.memory.room];
+    const rcl = room.controller!.level;
+    for (const struct in CONTROLLER_STRUCTURES) {
+      const foundStructs = room.find(FIND_MY_STRUCTURES, { filter: { structureType: struct } });
+      const c = CONTROLLER_STRUCTURES[struct];
+      if (foundStructs.length === CONTROLLER_STRUCTURES[struct][rcl]{
+        //
+      }
+    }
+  }
+
   public run(): void {
     if (this.memory.baseSpots === undefined) {
       this.findBaseSpots();
     } else if (this.memory.baseCenter === undefined) {
-      const mySpawns = Game.rooms[this.memory.room].find<Spawn>(FIND_MY_SPAWNS);
-      if (mySpawns.length > 0) {
-        const spawnP = mySpawns[0].pos;
-        const found = this.findCenterWithSpawn(spawnP);
-        if (found) {
-          this.memory.baseCenter = found;
-        }
-      } else {
-        const found = this.findCenter();
-        if (found) {
-          this.memory.baseCenter = found;
-        }
-      }
+      this.findBaseCenter();
     } else {
       const viz = new RoomVisual(this.memory.room);
       for (let i = 0; i < this.memory.baseSpots.length; i++) {
