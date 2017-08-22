@@ -120,6 +120,9 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
 
   private placeNextSite() {
     const room = Game.rooms[this.memory.room];
+    if (room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+      return;
+    }
     const rcl = room.controller!.level;
     for (const struct in CONTROLLER_STRUCTURES) {
       const cast = struct as StructureConstant;
@@ -139,6 +142,7 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     } else if (this.memory.baseCenter === undefined) {
       this.findBaseCenter();
     } else {
+      this.placeNextSite();
       const viz = new RoomVisual(this.memory.room);
       for (let i = 0; i < this.memory.baseSpots.length; i++) {
         const spot = this.memory.baseSpots[i];
