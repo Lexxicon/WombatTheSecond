@@ -1,13 +1,16 @@
-import { ROOM_HEIGHT, ROOM_WIDTH, TERRAIN_WALL } from "../constants";
+import { ROOM_CENTER, ROOM_HEIGHT, ROOM_WIDTH, TERRAIN_WALL } from "../constants";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
+import { distance, Point, subtract } from "../Points";
+import { FORT_LAYOUT } from "./BaseLayout";
 
 export interface ArchitectMemory {
   room: string;
-  baseSpots: Array<{ x: number, y: number }>;
+  baseSpots: Point[];
+  baseCenter: Point;
 }
 
-const BASE_SIZE = 13;
-const HALF_BASE = Math.ceil(BASE_SIZE / 2);
+const BASE_SIZE = FORT_LAYOUT.size;
+const HALF_BASE = { x: Math.ceil(BASE_SIZE.x / 2), y: Math.ceil(BASE_SIZE.y / 2) };
 
 function roomIndex(x: number, y: number): number {
   return (x * ROOM_WIDTH) + y;
@@ -31,13 +34,13 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     throw new Error("Not implemented yet.");
   }
 
-  private testRoomSpot(x: number, y: number, sqValues: number[][], lookResult: Array<LookAtResultWithPos<"terrain">>) {
+  private scoreRoomSpot(x: number, y: number, sqValues: number[][], lookResult: Array<LookAtResultWithPos<"terrain">>) {
     if (isRoomEdge(x, y) || lookResult[roomIndex(x, y)].terrain === TERRAIN_WALL) {
       sqValues[x][y] = 0;
     } else {
       sqValues[x][y] = minAdjacent(x, y, sqValues) + 1;
-      if (sqValues[x][y] >= BASE_SIZE) {
-        this.memory.baseSpots.push({ x: (x - HALF_BASE), y: (y - HALF_BASE) });
+      if (sqValues[x][y] >= Math.max(BASE_SIZE.x, BASE_SIZE.y)) {
+        this.memory.baseSpots.push(subtract({ x, y }, HALF_BASE));
       }
     }
   }
@@ -55,20 +58,70 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     for (let x = 0; x < ROOM_WIDTH; x++) {
       sqValues[x] = [];
       for (let y = 0; y < ROOM_HEIGHT; y++) {
-        this.testRoomSpot(x, y, sqValues, lookResult);
+        this.scoreRoomSpot(x, y, sqValues, lookResult);
       }
     }
+  }
+
+  private findCenter(): Point | undefined {
+    if (this.memory.baseSpots === undefined || this.memory.baseSpots.length === 0) {
+      return undefined;
+    }
+    let foundSpot = this.memory.baseSpots[0];
+    let rank = distance(foundSpot, ROOM_CENTER);
+    if (this.memory.baseSpots.length > 1) {
+      for (let i = 0; i < this.memory.baseSpots.length; i++) {
+        const testSpot = this.memory.baseSpots[i];
+        const testRank = distance(testSpot, ROOM_CENTER);
+        if (testRank < rank) {
+          foundSpot = testSpot;
+          rank = testRank;
+        }
+      }
+    }
+
+    return foundSpot;
+  }
+
+  private findCenterWithSpawn(spawn: Point): Point | undefined {
+    if (this.memory.baseSpots === undefined || this.memory.baseSpots.length === 0) {
+      return undefined;
+    }
+    for (let i = 0; i < FORT_LAYOUT.spots[STRUCTURE_SPAWN].length; i++) {
+      const offset = FORT_LAYOUT.spots[STRUCTURE_SPAWN][i];
+      const wantedSpot = { x: spawn.x - offset.x, y: spawn.y - offset.y };
+      const foundIndex = _.findIndex(this.memory.baseSpots, wantedSpot);
+      if (foundIndex >= 0) {
+        return wantedSpot;
+      }
+    }
+    return this.findCenter();
   }
 
   public run(): void {
     if (this.memory.baseSpots === undefined) {
       this.findBaseSpots();
+    } else if (this.memory.baseCenter === undefined) {
+      const mySpawns = Game.rooms[this.memory.room].find<Spawn>(FIND_MY_SPAWNS);
+      if (mySpawns.length > 0) {
+        const spawnP = mySpawns[0].pos;
+        const found = this.findCenterWithSpawn(spawnP);
+        if (found) {
+          this.memory.baseCenter = found;
+        }
+      } else {
+        const found = this.findCenter();
+        if (found) {
+          this.memory.baseCenter = found;
+        }
+      }
     } else {
       const viz = new RoomVisual(this.memory.room);
       for (let i = 0; i < this.memory.baseSpots.length; i++) {
         const spot = this.memory.baseSpots[i];
         viz.circle(spot.x, spot.y, { fill: "#FFFFFF" });
       }
+      viz.circle(this.memory.baseCenter.x, this.memory.baseCenter.y, { fill: "#FF0000" });
     }
   }
 }
