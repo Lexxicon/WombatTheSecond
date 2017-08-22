@@ -3,6 +3,10 @@ import { BasicProcess } from "../kernel/processes/BasicProcess";
 import { distance, Point, subtract } from "../Points";
 import { FORT_LAYOUT } from "./BaseLayout";
 
+// Record<StructureConstant, {
+//   [level: number]: number;
+// }>;
+
 export interface ArchitectMemory {
   room: string;
   baseSpots: Point[];
@@ -118,10 +122,13 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     const room = Game.rooms[this.memory.room];
     const rcl = room.controller!.level;
     for (const struct in CONTROLLER_STRUCTURES) {
+      const cast = struct as StructureConstant;
       const foundStructs = room.find(FIND_MY_STRUCTURES, { filter: { structureType: struct } });
-      const c = CONTROLLER_STRUCTURES[struct];
-      if (foundStructs.length === CONTROLLER_STRUCTURES[struct][rcl]{
-        //
+      const c = CONTROLLER_STRUCTURES[STRUCTURE_CONTAINER];
+      if (foundStructs.length < CONTROLLER_STRUCTURES[cast][rcl]) {
+        const spot = FORT_LAYOUT.spots[cast][foundStructs.length - 1];
+        room.createConstructionSite(spot.x, spot.y, cast);
+        return;
       }
     }
   }
