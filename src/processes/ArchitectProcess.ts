@@ -137,7 +137,7 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
   }
 
   public run(): void {
-    if (this.memory.baseSpots === undefined) {
+    if (this.memory.baseSpots === undefined || this.memory.baseSpots.length === 0) {
       this.findBaseSpots();
     } else if (this.memory.baseCenter === undefined) {
       this.findBaseCenter();

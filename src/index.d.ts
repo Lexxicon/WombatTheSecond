@@ -10,4 +10,3 @@ interface Memory {
 interface CreepMemory {
   pid?: PosisPID;
 }
-
