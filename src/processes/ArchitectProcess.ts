@@ -11,6 +11,7 @@ export interface ArchitectMemory {
 
 const BASE_SIZE = FORT_LAYOUT.size;
 const HALF_BASE = { x: Math.ceil(BASE_SIZE.x / 2), y: Math.ceil(BASE_SIZE.y / 2) };
+const HALF_BASE_DOWN = { x: Math.floor(BASE_SIZE.x / 2), y: Math.floor(BASE_SIZE.y / 2) };
 
 function roomIndex(x: number, y: number): number {
   return (x * ROOM_WIDTH) + y;
@@ -40,7 +41,7 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     } else {
       sqValues[x][y] = minAdjacent(x, y, sqValues) + 1;
       if (sqValues[x][y] >= Math.max(BASE_SIZE.x, BASE_SIZE.y)) {
-        this.memory.baseSpots.push(subtract({ x, y }, HALF_BASE));
+        this.memory.baseSpots.push(subtract({ x, y }, HALF_BASE_DOWN));
       }
     }
   }
@@ -59,6 +60,13 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
       sqValues[x] = [];
       for (let y = 0; y < ROOM_HEIGHT; y++) {
         this.scoreRoomSpot(x, y, sqValues, lookResult);
+        const score = Math.floor(Math.min(255, sqValues[x][y] * (255 / 13)));
+        let red = (255 - score).toString(16);
+        let green = score.toString(16);
+        while (red.length < 2) { red = "0" + red; };
+        while (green.length < 2) { green = "0" + green; };
+        const color = `#${red}${green}00`;
+        room.visual.text("" + sqValues[x][y], x, y, { color });
       }
     }
   }
@@ -128,10 +136,33 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
         const spot = add(FORT_LAYOUT.spots[cast][foundStructs.length], this.memory.baseCenter);
         this.log.info(`building ${struct} at ${JSON.stringify(spot)}`);
         // TODO figure out the off by one
-        room.createConstructionSite(spot.x + 1, spot.y + 1, cast);
+        room.createConstructionSite(spot.x, spot.y, cast);
         return;
       }
     }
+  }
+
+  private showBaseLayout() {
+    if (this.memory.baseCenter === undefined) {
+      return;
+    }
+    const room = Game.rooms[this.memory.room];
+
+    for (const struct in FORT_LAYOUT.spots) {
+      for (let i = 0; i < FORT_LAYOUT.spots[struct].length; i++) {
+        const spot = add(FORT_LAYOUT.spots[struct][i], this.memory.baseCenter);
+        room.visual.text(struct[0], spot.x, spot.y);
+      }
+    }
+  }
+
+  private showBaseSpots() {
+    const viz = new RoomVisual(this.memory.room);
+    for (let i = 0; i < this.memory.baseSpots.length; i++) {
+      const spot = this.memory.baseSpots[i];
+      viz.circle(spot.x, spot.y, { fill: "#FFFFFF" });
+    }
+    viz.circle(this.memory.baseCenter.x, this.memory.baseCenter.y, { fill: "#FF0000" });
   }
 
   public run(): void {
@@ -143,12 +174,6 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
       this.findBaseCenter();
     } else {
       this.placeNextSite();
-      const viz = new RoomVisual(this.memory.room);
-      for (let i = 0; i < this.memory.baseSpots.length; i++) {
-        const spot = this.memory.baseSpots[i];
-        viz.circle(spot.x, spot.y, { fill: "#FFFFFF" });
-      }
-      viz.circle(this.memory.baseCenter.x, this.memory.baseCenter.y, { fill: "#FF0000" });
     }
   }
 }
