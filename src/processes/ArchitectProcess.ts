@@ -1,11 +1,7 @@
 import { ROOM_CENTER, ROOM_HEIGHT, ROOM_WIDTH, TERRAIN_WALL } from "../constants";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
-import { distance, Point, subtract } from "../Points";
+import { distance, Point, subtract, add } from "../Points";
 import { FORT_LAYOUT } from "./BaseLayout";
-
-// Record<StructureConstant, {
-//   [level: number]: number;
-// }>;
 
 export interface ArchitectMemory {
   room: string;
@@ -54,7 +50,7 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     const room = Game.rooms[this.memory.room];
     const sqValues: number[][] = [];
     const lookResult = room.lookForAtArea(LOOK_TERRAIN, 0, 0, ROOM_HEIGHT - 1, ROOM_WIDTH - 1, true);
-    if (!(lookResult instanceof Array)) {
+    if (!Array.isArray(lookResult)) {
       return;
     }
     lookResult.sort((a, b) => roomIndex(a.x, a.y) - roomIndex(b.x, b.y));
@@ -129,8 +125,10 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
       const foundStructs = room.find(FIND_MY_STRUCTURES, { filter: { structureType: struct } });
       const c = CONTROLLER_STRUCTURES[STRUCTURE_CONTAINER];
       if (foundStructs.length < CONTROLLER_STRUCTURES[cast][rcl]) {
-        const spot = FORT_LAYOUT.spots[cast][foundStructs.length - 1];
-        room.createConstructionSite(spot.x, spot.y, cast);
+        const spot = add(FORT_LAYOUT.spots[cast][foundStructs.length], this.memory.baseCenter);
+        this.log.info(`building ${struct} at ${JSON.stringify(spot)}`);
+        // TODO figure out the off by one
+        room.createConstructionSite(spot.x + 1, spot.y + 1, cast);
         return;
       }
     }
@@ -138,8 +136,10 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
 
   public run(): void {
     if (this.memory.baseSpots === undefined || this.memory.baseSpots.length === 0) {
+      this.log.info("finding base locations");
       this.findBaseSpots();
     } else if (this.memory.baseCenter === undefined) {
+      this.log.info("selecting base center");
       this.findBaseCenter();
     } else {
       this.placeNextSite();
