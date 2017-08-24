@@ -1,6 +1,6 @@
 import { ROOM_CENTER, ROOM_HEIGHT, ROOM_WIDTH, TERRAIN_WALL } from "../constants";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
-import { distance, Point, subtract, add } from "../Points";
+import { add, distance, Point, subtract } from "../Points";
 import { FORT_LAYOUT } from "./BaseLayout";
 
 export interface ArchitectMemory {
@@ -63,8 +63,8 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
         const score = Math.floor(Math.min(255, sqValues[x][y] * (255 / 13)));
         let red = (255 - score).toString(16);
         let green = score.toString(16);
-        while (red.length < 2) { red = "0" + red; };
-        while (green.length < 2) { green = "0" + green; };
+        while (red.length < 2) { red = "0" + red; }
+        while (green.length < 2) { green = "0" + green; }
         const color = `#${red}${green}00`;
         room.visual.text("" + sqValues[x][y], x, y, { color });
       }
