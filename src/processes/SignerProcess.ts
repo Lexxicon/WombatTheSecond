@@ -8,6 +8,7 @@ export interface SignerMemory {
 }
 
 export class SignerProcess extends BasicProcess<SignerMemory> {
+  public static imageName = "Overmind/SignerProcess";
 
   @posisInterface("spawn")
   private spawnController: IPosisSpawnExtension;

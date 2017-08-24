@@ -38,10 +38,11 @@ export class OvermindProcess extends BasicProcess<OvermindMemory> {
   }
 
   public run(): void {
-    if (!this.memory.spawnController || !this.kernel.getProcessById(this.memory.spawnController)) {
-      const result = this.kernel.startProcess(SpawnController.imageName, { spawnQueue: [], spawnStatus: {} });
-      this.memory.spawnController = (result || { pid: undefined }).pid;
-    }
+    this.memory.spawnController = this.ensureRunning(
+      SpawnController.imageName,
+      this.memory.spawnController,
+      { spawnQueue: [], spawnStatus: {} });
+
     this.findNewHives();
     this.purgeOldHives();
   }
