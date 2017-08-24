@@ -130,12 +130,11 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     const rcl = room.controller!.level;
     for (const struct in CONTROLLER_STRUCTURES) {
       const cast = struct as StructureConstant;
-      const foundStructs = room.find(FIND_MY_STRUCTURES, { filter: { structureType: struct } });
+      const foundStructs = room.find(FIND_STRUCTURES, { filter: { structureType: struct } });
       const c = CONTROLLER_STRUCTURES[STRUCTURE_CONTAINER];
       if (foundStructs.length < CONTROLLER_STRUCTURES[cast][rcl]) {
         const spot = add(FORT_LAYOUT.spots[cast][foundStructs.length], this.memory.baseCenter);
         this.log.info(`building ${struct} at ${JSON.stringify(spot)}`);
-        // TODO figure out the off by one
         room.createConstructionSite(spot.x, spot.y, cast);
         return;
       }

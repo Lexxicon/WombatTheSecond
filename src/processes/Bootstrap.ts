@@ -13,9 +13,6 @@ export class BootstrapProcess extends BasicProcess<BootstrapMemory> {
   @posisInterface("spawn")
   private spawnExt: IPosisSpawnExtension;
 
-  @posisInterface("baseKernel")
-  private kernel: IPosisKernel;
-
   public notify(msg: WombatMessage): void {
     this.log.info(JSON.stringify(msg));
     if (this.isSpawnCallback(msg)) {

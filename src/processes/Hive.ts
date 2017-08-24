@@ -7,9 +7,9 @@ export interface HiveMemory {
 
   state: HiveState;
 
-  bootstrap: PosisPID;
+  bootstrap: PosisPID | undefined;
 
-  architect: PosisPID;
+  architect: PosisPID | undefined;
 }
 
 enum HiveState {
@@ -20,9 +20,6 @@ enum HiveState {
 
 export class HiveProcess extends BasicProcess<HiveMemory> {
   public static imageName = "Overmind/HiveProcess";
-
-  @posisInterface("wombatKernel")
-  private kernel: WombatKernel;
 
   constructor(context: IPosisProcessContext) {
     super(context);
@@ -36,25 +33,17 @@ export class HiveProcess extends BasicProcess<HiveMemory> {
   }
 
   public run(): void {
-    if (this.memory.bootstrap === undefined || !this.kernel.getProcessById(this.memory.bootstrap)) {
-      this.log.debug("starting bootstrap");
-      const result = this.kernel.startProcess(BootstrapProcess.imageName, {
-        room: this.memory.room,
-        workerIds: []
-      } as BootstrapMemory);
-      if (result) {
-        this.memory.bootstrap = result.pid;
-        this.memory.state = HiveState.BOOTSTRAP;
-      }
+    this.memory.bootstrap = this.ensureRunning(BootstrapProcess.imageName, this.memory.bootstrap, {
+      room: this.memory.room,
+      workerIds: []
+    } as BootstrapMemory);
+
+    if (this.memory.bootstrap) {
+      this.memory.state = HiveState.BOOTSTRAP;
     }
-    if (this.memory.architect === undefined || !this.kernel.getProcessById(this.memory.architect)) {
-      const result = this.kernel.startProcess(
-        ArchitectProcess.imageName, {
-          room: this.memory.room
-        } as ArchitectMemory);
-      if (result) {
-        this.memory.architect = result.pid;
-      }
-    }
+
+    this.memory.architect = this.ensureRunning(ArchitectProcess.imageName, this.memory.architect, {
+      room: this.memory.room
+    } as ArchitectMemory);
   }
 }

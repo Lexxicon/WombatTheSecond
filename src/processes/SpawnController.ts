@@ -20,9 +20,6 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
   @posisInterface("extensionRegistry")
   public extensionReg: WombatExtensionRegistry;
 
-  @posisInterface("wombatKernel")
-  public kernel: WombatKernel;
-
   constructor(context: IPosisProcessContext) {
     super(context);
     this.extensionReg.register("spawn", this);

@@ -10,9 +10,6 @@ export interface OvermindMemory {
 export class OvermindProcess extends BasicProcess<OvermindMemory> {
   public static imageName = "Overmind/OvermindProcess";
 
-  @posisInterface("wombatKernel")
-  public kernel: WombatKernel;
-
   public notify(msg: WombatMessage): void {
     this.log.info(`Recieved msg ${msg}`);
   }

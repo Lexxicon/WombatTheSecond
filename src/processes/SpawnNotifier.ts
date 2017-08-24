@@ -7,9 +7,6 @@ export interface NotifierMemory {
 export class SpawnNotifier extends BasicProcess<NotifierMemory> {
   public static imageName: string = "Overmind/SpawnNotifier";
 
-  @posisInterface("wombatKernel")
-  public kernel: WombatKernel;
-
   public notify(msg: any): void {
     this.log.info("Recieved Message: " + JSON.stringify(msg));
   }

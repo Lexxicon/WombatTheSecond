@@ -1,4 +1,5 @@
 import { posisInterface } from "../annotations/PosisInterface";
+
 export abstract class BasicProcess<MemType> implements WombatProcess {
 
   get memory(): MemType { // private memory
@@ -18,7 +19,10 @@ export abstract class BasicProcess<MemType> implements WombatProcess {
   }
 
   @posisInterface("wombatSleepExtension")
-  private wombatSleeper: WombatSleepExtension;
+  protected wombatSleeper: WombatSleepExtension;
+
+  @posisInterface("wombatKernel")
+  protected kernel: WombatKernel;
 
   constructor(public context: IPosisProcessContext) {
   }
@@ -26,6 +30,13 @@ export abstract class BasicProcess<MemType> implements WombatProcess {
   public sleep(time: number) {
     if (this.wombatSleeper === undefined) { throw new Error("Failed to find sleeper?"); }
     this.wombatSleeper.sleep(time, this.id);
+  }
+
+  public ensureRunning(imageName: string, pid: PosisPID | undefined, defaultMemory: any): PosisPID | undefined {
+    if (pid !== undefined && this.kernel.getProcessById(pid) !== undefined) {
+      return pid;
+    }
+    return (this.kernel.startProcess(imageName, defaultMemory || {}) || { pid: undefined }).pid;
   }
 
   public abstract notify(msg: WombatMessage): void;
