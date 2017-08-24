@@ -25,7 +25,7 @@ export class SignerProcess extends BasicProcess<SignerMemory> {
     const creep = this.spawnController.getCreep(this.memory.creep);
     if (creep) {
       if (creep.signController(controller, this.memory.message) === ERR_NOT_IN_RANGE) {
-        creep.travelTo(controller);
+        creep.moveTo(controller);
       }
     } else if (this.spawnController.getStatus(this.memory.creep).status === EPosisSpawnStatus.ERROR) {
       this.memory.creep = this.spawnController.spawnCreep({
