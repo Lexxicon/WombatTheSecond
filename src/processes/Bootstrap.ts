@@ -16,12 +16,11 @@ export class BootstrapProcess extends BasicProcess<BootstrapMemory> {
   public notify(msg: WombatMessage): void {
     this.log.info(JSON.stringify(msg));
     if (this.isSpawnCallback(msg)) {
-      const initMem: EmergencyWorkerMemory = {
+      this.kernel.startProcess(EmergencyWorkerProcess.imageName, {
         room: this.memory.room,
         workerId: msg.creep,
         state: 0
-      };
-      this.kernel.startProcess(EmergencyWorkerProcess.imageName, initMem);
+      } as EmergencyWorkerMemory);
     }
   }
 
