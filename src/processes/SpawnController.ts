@@ -18,7 +18,7 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
   public static imageName: string = "Overmind/SpawnController";
 
   @posisInterface("extensionRegistry")
-  public extensionReg: WombatExtensionRegistry;
+  public extensionReg!: WombatExtensionRegistry;
 
   constructor(context: IPosisProcessContext) {
     super(context);

@@ -4,23 +4,17 @@ import { BasicProcess } from "../kernel/processes/BasicProcess";
 export interface SourceExtractionMemory {
   room: string;
   souceId: string;
-  containerId: string;
   workerSpot: RoomPosition;
 
   worker: string;
   prespawn: number;
-
-  hauler: string;
-
-  storageId: string;
-  distanceToStorage: number;
 }
 
 export class SourceExtractionProcess extends BasicProcess<SourceExtractionMemory> {
   public static imageName = "Overmind/SourceExtractionProcess";
 
   @posisInterface("spawn")
-  private spawner: IPosisSpawnExtension;
+  private spawner!: IPosisSpawnExtension;
 
   constructor(context: IPosisProcessContext) {
     super(context);
@@ -30,33 +24,10 @@ export class SourceExtractionProcess extends BasicProcess<SourceExtractionMemory
     if (this.memory.souceId === undefined) {
       throw new Error("Must specify souceId");
     }
-    if (this.memory.storageId === undefined) {
-      throw new Error("Must specify storageId");
-    }
   }
 
   public notify(msg: WombatMessage): void {
     //
-  }
-
-  private initMemory(storage: Structure, source: Source): void {
-    if (this.memory.distanceToStorage === undefined) {
-      const path = PathFinder.search(storage.pos, source.pos);
-      this.memory.distanceToStorage = path.path.length;
-      this.memory.workerSpot = path.path[Math.max(0, path.path.length - 2)];
-    }
-    if (this.memory.containerId === undefined) {
-      const result = Game.rooms[this.memory.room].lookForAt<Structure>(LOOK_STRUCTURES, this.memory.workerSpot);
-      if (result === undefined || result === null || result.length === 0) {
-        // no container?
-      } else {
-        if (result[0].structureType === STRUCTURE_CONTAINER) {
-          this.memory.containerId = result[0].id;
-        } else {
-          // what did we find?!
-        }
-      }
-    }
   }
 
   public run(): void {
@@ -65,11 +36,5 @@ export class SourceExtractionProcess extends BasicProcess<SourceExtractionMemory
       this.log.warn("lost vision on source?");
       return;
     }
-    const storage = Game.getObjectById<Storage>(this.memory.storageId)!;
-    if (storage === undefined || storage === null) {
-      this.log.warn("lost vision on storage?");
-      return;
-    }
-    this.initMemory(storage, source);
   }
 }

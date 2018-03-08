@@ -22,5 +22,12 @@
   "typescript.tsdk": "./node_modules/typescript/lib",
   "tslint.autoFixOnSave": true,
   "editor.formatOnSave": true,
-  "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false
+  "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+  "cSpell.words": [
+    "console",
+    "overmind",
+    "pid",
+    "posis",
+    "screeps"
+  ]
 }

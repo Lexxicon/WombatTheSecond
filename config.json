@@ -4,12 +4,14 @@
   "targets": {
     "dev": {
       "branch": "dev",
+      "secure": true,
       "bundle": true,
       "lint": true,
       "lintRequired": false
     },
     "prod": {
       "branch": "prod",
+      "secure": true,
       "bundle": true,
       "lint": true,
       "lintRequired": false

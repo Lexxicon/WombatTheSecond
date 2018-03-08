@@ -11,7 +11,7 @@ export class BootstrapProcess extends BasicProcess<BootstrapMemory> {
   private static workerBody = [WORK, MOVE, CARRY];
 
   @posisInterface("spawn")
-  private spawnExt: IPosisSpawnExtension;
+  private spawnExt!: IPosisSpawnExtension;
 
   public notify(msg: WombatMessage): void {
     this.log.info(JSON.stringify(msg));

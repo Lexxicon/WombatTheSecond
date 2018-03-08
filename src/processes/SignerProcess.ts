@@ -11,7 +11,7 @@ export class SignerProcess extends BasicProcess<SignerMemory> {
   public static imageName = "Overmind/SignerProcess";
 
   @posisInterface("spawn")
-  private spawnController: IPosisSpawnExtension;
+  private spawnController!: IPosisSpawnExtension;
 
   public notify(msg: WombatMessage): void {
     this.sleep(0);

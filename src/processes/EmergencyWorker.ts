@@ -26,7 +26,7 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
   public static imageName = "Overmind/EmergencyWorkerProcess";
 
   @posisInterface("spawn")
-  private spawner: IPosisSpawnExtension;
+  private spawner!: IPosisSpawnExtension;
 
   public notify(msg: WombatMessage): void {
     this.log.debug(() => JSON.stringify(msg));

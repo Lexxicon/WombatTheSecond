@@ -130,6 +130,7 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     const rcl = room.controller!.level;
     for (const struct in CONTROLLER_STRUCTURES) {
       const cast = struct as StructureConstant;
+      if (cast === "road" && rcl < 4) { continue; }
       const foundStructs = room.find(FIND_STRUCTURES, { filter: { structureType: struct } });
       const c = CONTROLLER_STRUCTURES[STRUCTURE_CONTAINER];
       if (foundStructs.length < CONTROLLER_STRUCTURES[cast][rcl]
@@ -150,8 +151,9 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     const room = Game.rooms[this.memory.room];
 
     for (const struct in FORT_LAYOUT.spots) {
-      for (let i = 0; i < FORT_LAYOUT.spots[struct].length; i++) {
-        const spot = add(FORT_LAYOUT.spots[struct][i], this.memory.baseCenter);
+      const cast = struct as StructureConstant;
+      for (let i = 0; i < FORT_LAYOUT.spots[cast].length; i++) {
+        const spot = add(FORT_LAYOUT.spots[cast][i], this.memory.baseCenter);
         room.visual.text(struct[0], spot.x, spot.y);
       }
     }

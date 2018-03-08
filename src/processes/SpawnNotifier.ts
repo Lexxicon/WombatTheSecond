@@ -1,5 +1,6 @@
 import { posisInterface } from "../kernel/annotations/PosisInterface";
 import { BasicProcess } from "../kernel/processes/BasicProcess";
+
 export interface NotifierMemory {
   creep: string;
 }
@@ -8,7 +9,7 @@ export class SpawnNotifier extends BasicProcess<NotifierMemory> {
   public static imageName: string = "Overmind/SpawnNotifier";
 
   public notify(msg: any): void {
-    this.log.info("Recieved Message: " + JSON.stringify(msg));
+    this.log.info("Received Message: " + JSON.stringify(msg));
   }
 
   public run() {
