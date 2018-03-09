@@ -18,7 +18,8 @@ export class SignerProcess extends BasicProcess<SignerMemory> {
   }
   public run(): void {
     const controller = Game.getObjectById<StructureController>(this.memory.controller);
-    if (controller === null || controller === undefined || controller.sign.text === this.memory.message) {
+    if (controller === null || controller === undefined
+      || (controller.sign !== undefined && controller.sign.text !== this.memory.message)) {
       this.sleep(500);
       return;
     }
