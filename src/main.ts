@@ -36,6 +36,5 @@ overmindBundle.install(pRegistry);
 Memory.username = Memory.username || _.get(_.find(Game.spawns), "owner.username");
 
 export const loop = () => {
-
   kernel.run();
 };

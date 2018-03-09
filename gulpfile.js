@@ -1,6 +1,8 @@
 'use strict';
 const _ = require('lodash');
 const gutil = require('gulp-util');
+const log = require('fancy-log');
+const colors = require('ansi-colors');
 const clean = require('gulp-clean');
 const gulp = require('gulp');
 const fs = require('fs');
@@ -29,9 +31,9 @@ try {
   config = require('./config.json');
 } catch (error) {
   if (error.code == "MODULE_NOT_FOUND") {
-    gutil.log(gutil.colors.red('ERROR'), 'Could not find file "config.json"');
+    log(colors.red('ERROR'), 'Could not find file "config.json"');
   } else {
-    gutil.log(error);
+    log(error);
   }
   process.exit();
 }
@@ -42,39 +44,39 @@ try {
   _.merge(config.user, credentials.user);
 } catch (error) {
   if (error.code == "MODULE_NOT_FOUND") {
-    gutil.log(gutil.colors.red('ERROR'), 'Could not find file "credentials.json"');
+    log(colors.red('ERROR'), 'Could not find file "credentials.json"');
   } else {
-    gutil.log(error);
+    log(error);
   }
   process.exit();
 }
 
 if (!config.user || !config.user.email || !config.user.password) {
-  gutil.log(gutil.colors.red('ERROR'), 'Invalid "config.json" file: cannot find user credentials');
+  log(colors.red('ERROR'), 'Invalid "config.json" file: cannot find user credentials');
   process.exit();
 }
 
 if (!config.targets) {
-  gutil.log(gutil.colors.red('ERROR'), 'Invalid "config.json" file: cannot find build targets');
+  log(colors.red('ERROR'), 'Invalid "config.json" file: cannot find build targets');
   process.exit();
 }
 
 if (!config.defaultTarget || !config.targets[config.defaultTarget]) {
-  gutil.log(gutil.colors.red('ERROR'), 'Invalid "config.json" file: cannot find default build target');
+  log(colors.red('ERROR'), 'Invalid "config.json" file: cannot find default build target');
   process.exit();
 }
 
-gutil.log('Successfully loaded', gutil.colors.magenta('config.json'));
+log('Successfully loaded', colors.magenta('config.json'));
 
 if (gutil.env.target) {
   if (!config.targets[gutil.env.target]) {
-    gutil.log(gutil.colors.red('ERROR'), 'Invalid build target "' + gutil.env.target + '"');
-    gutil.log('Valid build targets are:', '"' + Object.keys(config.targets).join('", "') + '"');
+    log(colors.red('ERROR'), 'Invalid build target "' + gutil.env.target + '"');
+    log('Valid build targets are:', '"' + Object.keys(config.targets).join('", "') + '"');
     process.exit();
   }
-  gutil.log('Using selected build target', gutil.colors.magenta(gutil.env.target));
+  log('Using selected build target', colors.magenta(gutil.env.target));
 } else {
-  gutil.log('Using default build target', gutil.colors.magenta(config.defaultTarget));
+  log('Using default build target', colors.magenta(config.defaultTarget));
 }
 
 const buildTarget = gutil.env.target || config.defaultTarget;
@@ -103,7 +105,7 @@ gulp.task('update_submodules', (done) => {
 
 gulp.task('lint', function (done) {
   if (buildConfig.lint) {
-    gutil.log('linting ...');
+    log('linting ...');
     return gulp.src('src/**/*.ts')
       .pipe(tslint({ formatter: 'prose' }))
       .pipe(tslint.report({
@@ -111,7 +113,7 @@ gulp.task('lint', function (done) {
         emitError: buildConfig.lintRequired === true
       }));
   } else {
-    gutil.log('skipped lint, according to config');
+    log('skipped lint, according to config');
     return done();
   }
 });
