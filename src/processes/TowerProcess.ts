@@ -14,7 +14,7 @@ export class TowerProcess extends BasicProcess<TowerMemory> {
   }
 
   private findNewTargetID(): string | undefined {
-    const badDudes = Game.rooms[this.memory.room].find<Creep>(FIND_HOSTILE_CREEPS);
+    const badDudes = Game.rooms[this.memory.room].find(FIND_HOSTILE_CREEPS);
     if (!badDudes || badDudes.length === 0) {
       return;
     }
@@ -34,7 +34,7 @@ export class TowerProcess extends BasicProcess<TowerMemory> {
   public run(): void {
     const room = Game.rooms[this.memory.room];
 
-    const towers = room.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } }) as Tower[];
+    const towers = room.find<StructureTower>(FIND_STRUCTURES, (k) => k.structureType === STRUCTURE_TOWER);
     if (towers.length === 0) {
       this.sleep(500);
     }

@@ -13,11 +13,11 @@ export class SpawnNotifier extends BasicProcess<NotifierMemory> {
   }
 
   public run() {
-    const creep = Game.creeps[this.memory.creep as string];
+    const creep = Game.creeps[this.memory.creep];
 
     if (creep !== undefined && !creep.spawning) {
       try {
-        const creepPID = Game.creeps[this.memory.creep as string].memory.pid;
+        const creepPID = Game.creeps[this.memory.creep].memory.pid;
         if (creepPID !== undefined) {
           this.kernel.notify(creepPID, { type: "spawnMessage", creep: creep.name } as SpawnMessage);
         }

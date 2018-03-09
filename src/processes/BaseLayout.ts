@@ -1,4 +1,4 @@
-type SpotType = {[k in StructureConstant]: Array<{ x: number, y: number }>};
+type SpotType = {[k in BuildableStructureConstant]: Array<{ x: number, y: number }>};
 
 export const FORT_LAYOUT = {
   size: { x: 13, y: 13 },

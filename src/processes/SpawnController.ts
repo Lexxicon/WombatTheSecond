@@ -38,7 +38,7 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
       return;
     }
 
-    const spawns = _.filter(Game.spawns, (spawn: Spawn) => !spawn.spawning);
+    const spawns = _.filter(Game.spawns, (spawn: StructureSpawn) => !spawn.spawning);
 
     for (let i = this.memory.spawnQueue.length - 1; i >= 0; i--) {
       const req = this.memory.spawnQueue[i];
@@ -79,7 +79,7 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
       // spawn doesn't have enough to fulfill request
       .filter((s) => s.room.energyAvailable >= spawnCost)
       // rank spawn based on distance and available energy
-      .map((spawn: Spawn, index: number) => {
+      .map((spawn: StructureSpawn, index: number) => {
         const dist = Game.map.getRoomLinearDistance(spawn.room.name, request.rooms[0]);
         const rank = spawn.room.energyAvailable - (dist * 50);
         return { index, rank, spawn };

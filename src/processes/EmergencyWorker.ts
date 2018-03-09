@@ -78,9 +78,13 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
   }
 
   private find(lookup: FindConstant): string | undefined {
-    const results = Game.rooms[this.memory.room].find<Structure>(lookup);
-    if (results.length > 0) {
-      return results[0].id;
+    const results = Game.rooms[this.memory.room].find(lookup);
+    if (results.length > 0 && results) {
+      const r = results[0];
+      if ((r as { id: string }).id) {
+        return (r as { id: string }).id;
+      }
+      return undefined;
     } else {
       return undefined;
     }
@@ -102,7 +106,7 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
     if (this.memory.spawnTarget === undefined) {
       this.log.warn("no spawn target id");
     } else {
-      const spawn = Game.getObjectById<Spawn>(this.memory.spawnTarget);
+      const spawn = Game.getObjectById(this.memory.spawnTarget) as StructureSpawn;
       if (spawn === undefined || spawn === null) {
         this.log.warn("failed to lookup room spawn");
         delete this.memory.spawnTarget;
@@ -137,7 +141,7 @@ export class EmergencyWorkerProcess extends BasicProcess<EmergencyWorkerMemory> 
 
   private doGather(creep: Creep): boolean {
     if (this.memory.sourceTarget === undefined) {
-      const source = creep.pos.findClosestByPath<Source>(FIND_SOURCES);
+      const source = creep.pos.findClosestByPath(FIND_SOURCES);
       if (source) {
         this.memory.sourceTarget = source.id;
       } else {

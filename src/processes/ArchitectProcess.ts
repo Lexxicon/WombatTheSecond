@@ -107,7 +107,7 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
   }
 
   private findBaseCenter() {
-    const mySpawns = Game.rooms[this.memory.room].find<Spawn>(FIND_MY_SPAWNS);
+    const mySpawns = Game.rooms[this.memory.room].find(FIND_MY_SPAWNS);
     if (mySpawns.length > 0) {
       const spawnP = mySpawns[0].pos;
       const found = this.findCenterWithSpawn(spawnP);
@@ -129,10 +129,10 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     }
     const rcl = room.controller!.level;
     for (const struct in CONTROLLER_STRUCTURES) {
-      const cast = struct as StructureConstant;
-      if (cast === "road" && rcl < 4) { continue; }
-      const foundStructs = room.find(FIND_STRUCTURES, { filter: { structureType: struct } });
+      if (struct === "road" && rcl < 4) { continue; }
+      const foundStructs = room.find(FIND_STRUCTURES, (k) => k.structureType === struct);
       const c = CONTROLLER_STRUCTURES[STRUCTURE_CONTAINER];
+      const cast = struct as BuildableStructureConstant;
       if (foundStructs.length < CONTROLLER_STRUCTURES[cast][rcl]
         && FORT_LAYOUT.spots[cast]
         && foundStructs.length < FORT_LAYOUT.spots[cast].length) {
@@ -151,7 +151,7 @@ export class ArchitectProcess extends BasicProcess<ArchitectMemory> {
     const room = Game.rooms[this.memory.room];
 
     for (const struct in FORT_LAYOUT.spots) {
-      const cast = struct as StructureConstant;
+      const cast = struct as BuildableStructureConstant;
       for (let i = 0; i < FORT_LAYOUT.spots[cast].length; i++) {
         const spot = add(FORT_LAYOUT.spots[cast][i], this.memory.baseCenter);
         room.visual.text(struct[0], spot.x, spot.y);
