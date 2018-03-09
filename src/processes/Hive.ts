@@ -3,6 +3,7 @@ import { BasicProcess } from "../kernel/processes/BasicProcess";
 import { ArchitectMemory, ArchitectProcess } from "./ArchitectProcess";
 import { BootstrapMemory, BootstrapProcess } from "./Bootstrap";
 import { SignerMemory, SignerProcess } from "./SignerProcess";
+
 export interface HiveMemory {
   room: string;
 

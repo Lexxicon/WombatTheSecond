@@ -11,17 +11,16 @@ export class BootstrapProcess extends BasicProcess<BootstrapMemory> {
   private static workerBody = [WORK, MOVE, CARRY];
 
   @posisInterface("spawn")
-  private spawnExt: IPosisSpawnExtension;
+  private spawnExt!: IPosisSpawnExtension;
 
   public notify(msg: WombatMessage): void {
     this.log.info(JSON.stringify(msg));
     if (this.isSpawnCallback(msg)) {
-      const initMem: EmergencyWorkerMemory = {
+      this.kernel.startProcess(EmergencyWorkerProcess.imageName, {
         room: this.memory.room,
         workerId: msg.creep,
         state: 0
-      };
-      this.kernel.startProcess(EmergencyWorkerProcess.imageName, initMem);
+      } as EmergencyWorkerMemory);
     }
   }
 

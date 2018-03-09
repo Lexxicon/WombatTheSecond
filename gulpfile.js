@@ -51,7 +51,7 @@ try {
   process.exit();
 }
 
-if (!config.user || !config.user.email || !config.user.password) {
+if (!config.user || !config.user.token) {
   log(colors.red('ERROR'), 'Invalid "config.json" file: cannot find user credentials');
   process.exit();
 }
@@ -162,6 +162,7 @@ gulp.task('push', () => {
     .pipe(screeps({
       email: config.user.email,
       password: config.user.password,
+      token: config.user.token,
       branch: buildConfig.branch,
       ptr: false,
       host: 'screeps.com',

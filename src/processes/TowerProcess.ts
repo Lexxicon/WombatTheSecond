@@ -10,7 +10,7 @@ export class TowerProcess extends BasicProcess<TowerMemory> {
   public static imageName = "Overmind/TowerProcess";
 
   public notify(msg: WombatMessage): void {
-    this.log.info(`Recieved message ${JSON.stringify}`);
+    this.log.info(`Received message ${JSON.stringify}`);
   }
 
   private findNewTargetID(): string | undefined {

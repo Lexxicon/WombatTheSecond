@@ -1,3 +1,5 @@
+type SpotType = {[k in StructureConstant]: Array<{ x: number, y: number }>};
+
 export const FORT_LAYOUT = {
   size: { x: 13, y: 13 },
   spots: {
@@ -176,5 +178,5 @@ export const FORT_LAYOUT = {
     [STRUCTURE_OBSERVER]: [
       { x: -5, y: 5 },
     ]
-  }
+  } as SpotType
 };

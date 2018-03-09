@@ -19,10 +19,10 @@ export abstract class BasicProcess<MemType> implements WombatProcess {
   }
 
   @posisInterface("wombatSleepExtension")
-  protected wombatSleeper: WombatSleepExtension;
+  protected wombatSleeper!: WombatSleepExtension;
 
   @posisInterface("wombatKernel")
-  protected kernel: WombatKernel;
+  protected kernel!: WombatKernel;
 
   constructor(public context: IPosisProcessContext) {
   }

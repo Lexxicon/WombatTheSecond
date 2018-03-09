@@ -2,7 +2,7 @@ import { LogLevel } from "./LogLevel";
 
 export class Logger implements IPosisLogger {
   // Use for HTML styling (Colors match screeps_console)
-  private static styles = {
+  private static styles: { [key: string]: string } = {
     default: "color: white; background-color: black",
     [LogLevel.DEBUG]: "color: grey",
     [LogLevel.INFO]: "color: white",
