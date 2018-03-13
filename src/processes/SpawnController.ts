@@ -3,7 +3,7 @@ import { BasicProcess } from "../kernel/processes/BasicProcess";
 import { SpawnNotifier } from "./SpawnNotifier";
 
 export interface SpawnControllerMemory {
-  spawnQueue: Array<{ name: string; request: SpawnRequest }>;
+  spawnQueue: SpawnJob[];
   spawnStatus: { [name: string]: EPosisSpawnStatus };
 }
 
@@ -12,6 +12,17 @@ export interface SpawnRequest {
   body: BodyPartConstant[][];
   priority?: number | undefined;
   pid?: PosisPID | undefined;
+}
+
+interface SpawnJob {
+  name: string;
+  request: SpawnRequest;
+}
+
+interface SpawnRank {
+  index: number;
+  rank: number;
+  spawn: StructureSpawn;
 }
 
 export class SpawnController extends BasicProcess<SpawnControllerMemory> implements IPosisSpawnExtension {
@@ -43,19 +54,26 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
     for (let i = this.memory.spawnQueue.length - 1; i >= 0; i--) {
       const req = this.memory.spawnQueue[i];
       const rankedSpawns = this.rankSpawns(spawns, req.request);
-
-      for (let j = 0; j < rankedSpawns.length; j++) {
-        const rslt = rankedSpawns[j].spawn.createCreep(req.request.body[0], req.name, { pid: req.request.pid });
-        if (_.isString(rslt)) {
-          spawns.splice(rankedSpawns[j].index, 1);
-          this.log.info("spawning: " + req.name);
-          this.memory.spawnQueue.splice(i, 1);
-          this.memory.spawnStatus[req.name] = EPosisSpawnStatus.SPAWNING;
-          this.kernel.startProcess(SpawnNotifier.imageName, { creep: req.name });
-          break;
-        }
+      const assignedSpawner = this.trySpawn(rankedSpawns, req);
+      if (assignedSpawner >= 0) {
+        spawns.splice(rankedSpawns[assignedSpawner].index, 1);
+        this.memory.spawnQueue.splice(i, 1);
       }
     }
+  }
+
+  private trySpawn(rankedSpawns: SpawnRank[], req: SpawnJob): number {
+    for (let j = 0; j < rankedSpawns.length; j++) {
+      const rankedSpawn = rankedSpawns[j];
+      const rslt = _.isString(rankedSpawn.spawn.createCreep(req.request.body[0], req.name, { pid: req.request.pid }));
+      if (rslt) {
+        this.log.info("spawning: " + req.name);
+        this.memory.spawnStatus[req.name] = EPosisSpawnStatus.SPAWNING;
+        this.kernel.startProcess(SpawnNotifier.imageName, { creep: req.name });
+        return j;
+      }
+    }
+    return -1;
   }
 
   private cleanUpMemory(): void {
@@ -71,9 +89,7 @@ export class SpawnController extends BasicProcess<SpawnControllerMemory> impleme
     }
   }
 
-  private rankSpawns(spawns: StructureSpawn[], request: SpawnRequest):
-    Array<{ index: number, rank: number, spawn: StructureSpawn }> {
-
+  private rankSpawns(spawns: StructureSpawn[], request: SpawnRequest): SpawnRank[] {
     const spawnCost = this.calculateBodyCost(request.body[0]);
     return _(spawns)
       // spawn doesn't have enough to fulfill request
