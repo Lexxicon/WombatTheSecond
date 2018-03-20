@@ -24,10 +24,15 @@
   "editor.formatOnSave": true,
   "typescript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
   "cSpell.words": [
+    "buildable",
     "console",
+    "constant",
+    "found",
     "overmind",
     "pid",
     "posis",
-    "screeps"
+    "screeps",
+    "structs",
+    "structure"
   ]
 }
