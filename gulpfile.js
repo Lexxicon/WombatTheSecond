@@ -1,6 +1,6 @@
 'use strict';
 const _ = require('lodash');
-const gutil = require('gulp-util');
+const argv = require('minimist')(process.argv.slice(2));
 const log = require('fancy-log');
 const colors = require('ansi-colors');
 const clean = require('gulp-clean');
@@ -68,18 +68,18 @@ if (!config.defaultTarget || !config.targets[config.defaultTarget]) {
 
 log('Successfully loaded', colors.magenta('config.json'));
 
-if (gutil.env.target) {
-  if (!config.targets[gutil.env.target]) {
-    log(colors.red('ERROR'), 'Invalid build target "' + gutil.env.target + '"');
-    log('Valid build targets are:', '"' + Object.keys(config.targets).join('", "') + '"');
-    process.exit();
-  }
-  log('Using selected build target', colors.magenta(gutil.env.target));
-} else {
-  log('Using default build target', colors.magenta(config.defaultTarget));
-}
+// if (gutil.env.target) {
+//   if (!config.targets[gutil.env.target]) {
+//     log(colors.red('ERROR'), 'Invalid build target "' + gutil.env.target + '"');
+//     log('Valid build targets are:', '"' + Object.keys(config.targets).join('", "') + '"');
+//     process.exit();
+//   }
+//   log('Using selected build target', colors.magenta(gutil.env.target));
+// } else {
+log('Using default build target', colors.magenta(config.defaultTarget));
+// }
 
-const buildTarget = gutil.env.target || config.defaultTarget;
+const buildTarget = config.defaultTarget;
 const buildConfig = config.targets[buildTarget];
 
 const repo = config.repository || "";
