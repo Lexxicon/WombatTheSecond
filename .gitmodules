@@ -1,6 +1,0 @@
-[submodule "lib/traveler"]
-	path = lib/traveler
-	url = https://github.com/bonzaiferroni/Traveler.git
-[submodule "lib/WombatPOSIS"]
-	path = lib/WombatPOSIS
-	url = https://github.com/Lexxicon/WombatPOSIS.git
