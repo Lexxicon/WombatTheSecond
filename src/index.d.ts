@@ -3,3 +3,7 @@ interface Memory {
   revision: string;
   buildTime: string;
 }
+
+interface CreepMemory {
+  role: string;
+}

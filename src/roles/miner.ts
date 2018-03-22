@@ -21,11 +21,11 @@ export class Miner implements Role<InitMemory> {
   public id = "MINER";
 
   public create(spawn: StructureSpawn, initMem: InitMemory): void {
-    spawn.createCreep([WORK, MOVE], undefined, _.merge(initMem, { state: State.TRANSIT }));
+    spawn.createCreep([WORK, MOVE], undefined, _.merge(initMem, { state: State.TRANSIT, role: this.id }));
   }
 
   public run(creep: Creep): void {
-    const mem = creep.memory as MinerMemory;
+    const mem = creep.memory as any as MinerMemory;
     this.actions[mem.state](creep, mem);
   }
 
@@ -36,11 +36,9 @@ export class Miner implements Role<InitMemory> {
 
   protected transit(creep: Creep, mem: MinerMemory) {
     if (creep.moveTo(mem.harvestSpot.x, mem.harvestSpot.y) !== OK) {
-      if (creep.pos.isEqualTo(mem.harvestSpot.x, mem.harvestSpot.y)) {
-        mem.state = State.HARVEST;
-      } else {
-        console.log("err");
-      }
+      //
+    } else if (creep.pos.isEqualTo(mem.harvestSpot.x, mem.harvestSpot.y)) {
+      mem.state = State.HARVEST;
     }
   }
 
