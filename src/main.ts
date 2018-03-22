@@ -30,13 +30,12 @@ export const loop = () => {
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
-    }
-    if (Memory.creeps[name].role) {
+    } else if (Memory.creeps[name].role) {
       creepCount[Memory.creeps[name].role]++;
     }
   }
 
-  if (creepCount[miner.id] < 1) {
+  if (creepCount[miner.id] < 4) {
     const spawn = "Spawn1";
     miner.create(Game.spawns[spawn], { sourceID: "59830045b097071b4adc4023", harvestSpot: { x: 40, y: 17 } });
   }

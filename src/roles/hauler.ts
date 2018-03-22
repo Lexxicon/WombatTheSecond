@@ -17,11 +17,16 @@ export class Hauler implements Role<any> {
 
   }
   public run(creep: Creep): void {
-
+    const mem = creep.memory as any as HaulerMemory;
   }
 
-  protected pickup(creep: Creep): void {
+  private actions = {
+    [State.PICKUP]: this.pickup,
+    [State.DROP_OFF]: this.dropOff
+  };
 
+  protected pickup(creep: Creep, mem: HaulerMemory): void {
+    //
   }
 
   protected dropOff(creep: Creep, mem: HaulerMemory): void {
