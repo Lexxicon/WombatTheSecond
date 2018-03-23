@@ -32,7 +32,7 @@ export class RoomManager {
   }
 
   public process(room: Room) {
-    const hive = this.roomMem[room.name] || (this.roomMem[room.name] = { creeps: {} });
+    const hive = Memory.roomManager[room.name] || (Memory.roomManager[room.name] = { creeps: {} });
     const roleCount = this.processCreeps(hive);
     this.spawnCreeps(room, roleCount, hive);
   }
