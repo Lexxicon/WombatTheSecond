@@ -71,15 +71,16 @@ export class Miner implements Role<any> {
 
   protected build(creep: Creep, mem: MinerMemory) {
     const sites = creep.room.find(FIND_CONSTRUCTION_SITES);
-    if (sites.length > 0) {
+    if (sites.length > 0 && creep.carry.energy > 0) {
       if (creep.build(sites[0]) === ERR_NOT_IN_RANGE) {
         creep.moveTo(sites[0]);
       }
-    }
-    if (creep.carry.energy === 0) {
-      mem.state = State.HARVEST;
     } else {
-      mem.state = State.FILL;
+      if (creep.carry.energy === 0) {
+        mem.state = State.HARVEST;
+      } else {
+        mem.state = State.FILL;
+      }
     }
   }
 
@@ -104,6 +105,8 @@ export class Miner implements Role<any> {
     if (creep.carry.energy === creep.carryCapacity) {
       if (creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
         mem.state = State.FILL;
+      } else if (creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+        mem.state = State.BUILD;
       } else {
         mem.state = State.UPGRADE;
       }

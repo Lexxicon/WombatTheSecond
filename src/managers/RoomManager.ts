@@ -12,6 +12,10 @@ interface Roles {
   [roleId: string]: Role<any>;
 }
 
+const desiredRoles = {
+  MINER: 4
+};
+
 export class RoomManager {
   private roomMem: ManagerMemory;
   private roles: Roles;
