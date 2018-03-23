@@ -11,9 +11,6 @@
     "outDir": "./dist/js/"
   },
   "compileOnSave": false,
-  "files": [
-    "lib/WombatPOSIS/dist/index.d.ts"
-  ],
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts",

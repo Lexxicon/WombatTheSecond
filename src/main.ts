@@ -1,51 +1,28 @@
 import { BUILD_TIME, REVISION } from "./build_info";
+import { RoomManager } from "./managers/RoomManager";
 import { Miner } from "./roles/miner";
+import { Role } from "./roles/role";
 import { LoggerFactory } from "./util/LoggerFactory";
 
 const log = LoggerFactory.getLogger("main");
 
-log.debug("Reset");
-
 if (Memory.revision !== REVISION || Memory.buildTime !== BUILD_TIME) {
   Memory.revision = REVISION;
   Memory.buildTime = BUILD_TIME;
+  Memory.username = Memory.username || _.get(_.find(Game.spawns), "owner.username");
   log.info(`loading revision: ${REVISION} : ${BUILD_TIME}`);
+} else {
+  log.debug("Reset");
 }
+
 const miner = new Miner();
 
 const roles = {
   [miner.id]: miner
 };
 
-Memory.username = Memory.username || _.get(_.find(Game.spawns), "owner.username");
-
-declare const global: any;
-
-global.myCommand = (arg1: string) => { console.log(arg1); };
+const roomManager = new RoomManager(roles);
 
 export const loop = () => {
-  const creepCount = {
-    [miner.id]: 0
-  };
-
-  // Automatically delete memory of missing creeps
-  for (const name in Memory.creeps) {
-    if (!(name in Game.creeps)) {
-      delete Memory.creeps[name];
-    } else if (Memory.creeps[name].role) {
-      creepCount[Memory.creeps[name].role]++;
-    }
-  }
-
-  if (creepCount[miner.id] < 4) {
-    const spawn = "Spawn1";
-    miner.create(Game.spawns[spawn], {});
-  }
-
-  for (const id in Game.creeps) {
-    const creep = Game.creeps[id];
-    if (roles[creep.memory.role]) {
-      roles[creep.memory.role].run(creep);
-    }
-  }
+  _.forEach(Game.rooms, (r) => roomManager.process(r));
 };

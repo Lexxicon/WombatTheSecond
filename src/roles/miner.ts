@@ -3,7 +3,6 @@ import { Role } from "./role";
 interface MinerMemory {
   state: State;
 }
-
 enum State {
   HARVEST,
   FILL,
@@ -11,16 +10,24 @@ enum State {
   UPGRADE
 }
 
-export class Miner implements Role<any> {
+export class Miner implements Role<MinerMemory> {
 
   public id = "MINER";
 
-  public create(spawn: StructureSpawn, initMem: any): void {
-    spawn.createCreep([WORK, MOVE, CARRY], undefined, _.merge(initMem, { state: State.HARVEST, role: this.id }));
+  public create(spawn: StructureSpawn): string | undefined {
+    const rslt = spawn.createCreep([WORK, MOVE, CARRY], undefined, { role: this.id });
+    if (_.isString(rslt)) {
+      return rslt;
+    }
+    return undefined;
   }
 
-  public run(creep: Creep): void {
-    const mem = creep.memory as any as MinerMemory;
+  public initMemory() {
+    return { state: State.HARVEST };
+  }
+
+  public run(creep: Creep, mem: MinerMemory): void {
+    if (mem.state === undefined) { mem.state = State.HARVEST; }
     const state = mem.state;
     this.actions[mem.state](creep, mem);
     if (mem.state !== state) {
