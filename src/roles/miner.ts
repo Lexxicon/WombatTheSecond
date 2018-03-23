@@ -21,8 +21,19 @@ export class Miner implements Role<any> {
 
   public run(creep: Creep): void {
     const mem = creep.memory as any as MinerMemory;
+    const state = mem.state;
     this.actions[mem.state](creep, mem);
+    if (mem.state !== state) {
+      creep.say(this.icons[mem.state]);
+    }
   }
+
+  private icons = {
+    [State.HARVEST]: "🔄",
+    [State.FILL]: "⇄",
+    [State.BUILD]: "🔨",
+    [State.UPGRADE]: "🙏"
+  };
 
   private actions = {
     [State.HARVEST]: this.harvest,
@@ -33,13 +44,13 @@ export class Miner implements Role<any> {
   };
 
   protected fill(creep: Creep, mem: MinerMemory) {
-    const spawns = creep.room.find(FIND_MY_SPAWNS, (s) => s.energy < s.energyCapacity);
+    const spawns = creep.room.find(FIND_MY_SPAWNS, { filter: (s) => s.energy < s.energyCapacity });
     let fillTarget;
     if (spawns.length > 0) {
       fillTarget = spawns[0];
     } else {
       const extensions = creep.room.find(FIND_MY_STRUCTURES,
-        (s) => s.structureType === STRUCTURE_EXTENSION && s.energy < s.energyCapacity);
+        { filter: (s) => s.structureType === STRUCTURE_EXTENSION && s.energy < s.energyCapacity });
       if (extensions.length > 0) {
         fillTarget = extensions[0];
       }

@@ -4,6 +4,8 @@ import { LoggerFactory } from "./util/LoggerFactory";
 
 const log = LoggerFactory.getLogger("main");
 
+log.debug("Reset");
+
 if (Memory.revision !== REVISION || Memory.buildTime !== BUILD_TIME) {
   Memory.revision = REVISION;
   Memory.buildTime = BUILD_TIME;
@@ -37,7 +39,7 @@ export const loop = () => {
 
   if (creepCount[miner.id] < 4) {
     const spawn = "Spawn1";
-    miner.create(Game.spawns[spawn], { sourceID: "59830045b097071b4adc4023", harvestSpot: { x: 40, y: 17 } });
+    miner.create(Game.spawns[spawn], {});
   }
 
   for (const id in Game.creeps) {
