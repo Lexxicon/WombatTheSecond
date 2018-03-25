@@ -4,10 +4,29 @@ interface ManagerMemory {
   [roomName: string]: Hive;
 }
 
-interface Hive {
+enum HiveState {
+  SETUP,
+  GROWTH
+}
+
+export interface Hive {
+  state: HiveState;
+  homeRoomName: string;
+  homeRoom: Room;
+  established: boolean;
   creeps: {
     [name: string]: {};
   };
+  roleBoard: {
+    [role: string]: any;
+  };
+  roleCount: RoleCount;
+  needsRepair: Structure[];
+  needsRepairId: string[];
+  upgradeSpot: RoomPosition;
+  upgradeSpotSerialized: { x: number, y: number, roomName: string };
+  harvestSpots: RoomPosition[];
+  harvestSpotsSerialized: Array<{ x: number, y: number, roomName: string }>;
 }
 
 interface RolesRepo {
@@ -19,7 +38,7 @@ interface RoleCount {
 }
 
 const desiredRoles = {
-  MINER: 4
+  MINER: 6
 } as RoleCount;
 
 export class RoomManager {
@@ -31,35 +50,136 @@ export class RoomManager {
     this.roles = roles;
   }
 
-  public process(room: Room) {
-    const hive = Memory.roomManager[room.name] || (Memory.roomManager[room.name] = { creeps: {} });
-    const roleCount = this.processCreeps(hive);
-    this.spawnCreeps(room, roleCount, hive);
+  public prep() {
+    this.roomMem = Memory.roomManager || (Memory.roomManager = {});
+    for (const hiveID in this.roomMem) {
+      const hive = this.roomMem[hiveID];
+      if (hive.upgradeSpotSerialized !== undefined) {
+        hive.upgradeSpot = new RoomPosition(
+          hive.upgradeSpotSerialized.x,
+          hive.upgradeSpotSerialized.y,
+          hive.upgradeSpotSerialized.roomName);
+      }
+
+      hive.needsRepair = [];
+      if (hive.needsRepairId !== undefined) {
+        hive.needsRepairId = hive.needsRepairId.filter((f) => {
+          const struct = Game.getObjectById(f) as Structure;
+          if (struct !== null && struct.hits < struct.hitsMax) {
+            hive.needsRepair.push(struct);
+            return true;
+          }
+          return false;
+        });
+      }
+      hive.harvestSpots = [];
+      hive.homeRoom = Game.rooms[hive.homeRoomName];
+      for (const id in hive.harvestSpotsSerialized) {
+        const args = hive.harvestSpotsSerialized[id];
+        hive.harvestSpots.push(new RoomPosition(args.x, args.y, args.roomName));
+      }
+    }
   }
 
-  public processCreeps(hive: Hive): RoleCount {
+  private getHiveMem(room: Room) {
+    _.defaults(this.roomMem[room.name], {
+      state: HiveState.SETUP,
+      homeRoomName: room.name,
+      established: false,
+      creeps: {},
+      roleBoard: {},
+      harvestSpotsSerialized: [],
+      needsRepairId: []
+    });
+    return this.roomMem[room.name];
+  }
+
+  public process(room: Room) {
+    const hive = this.getHiveMem(room);
+    if (!hive.established) {
+      this.establishHive(hive);
+    }
+    this.findRepairJobs(hive);
+    this.updateConstructionJobs(hive);
+    this.processCreeps(hive);
+    this.spawnCreeps(hive);
+  }
+
+  public findRepairJobs(hive: Hive) {
+    for (const struct of hive.homeRoom.find(FIND_STRUCTURES)) {
+      if (struct.hits < (struct.hitsMax * 0.9) && hive.needsRepairId.indexOf(struct.id) < 0) {
+        hive.needsRepairId.push(struct.id);
+      }
+    }
+  }
+
+  public updateConstructionJobs(hive: Hive) {
+    if (hive.homeRoom.find(FIND_CONSTRUCTION_SITES).length > 0) {
+      return;
+    }
+
+    for (const spot of hive.harvestSpots) {
+      if (spot.lookFor(LOOK_STRUCTURES).length === 0) {
+        spot.createConstructionSite(STRUCTURE_CONTAINER);
+        return;
+      }
+    }
+
+    if (hive.state === HiveState.SETUP) {
+      hive.state = HiveState.GROWTH;
+    }
+
+    if (hive.upgradeSpot.lookFor(LOOK_STRUCTURES).length === 0) {
+      hive.upgradeSpot.createConstructionSite(STRUCTURE_CONTAINER);
+      return;
+    }
+  }
+
+  public establishHive(hive: Hive) {
+    const homeSources = hive.homeRoom.find(FIND_SOURCES);
+    const centerPoint = (hive.homeRoom.find(FIND_MY_SPAWNS)[0] || { pos: hive.homeRoom.getPositionAt(25, 25) }).pos;
+
+    for (const source of homeSources) {
+      const path = source.pos.findPathTo(centerPoint, { ignoreCreeps: true, ignoreRoads: true })[0];
+      const args = { x: path.x, y: path.y, roomName: hive.homeRoomName };
+      hive.harvestSpotsSerialized.push(args);
+      hive.harvestSpots.push(new RoomPosition(args.x, args.y, args.roomName));
+    }
+
+    const upgradeSpot = hive.homeRoom.controller!.pos.findPathTo(
+      centerPoint,
+      { ignoreCreeps: true, ignoreRoads: true }
+    )[0];
+
+    const upgradeArgs = { x: upgradeSpot.x, y: upgradeSpot.y, roomName: hive.homeRoomName };
+    hive.upgradeSpotSerialized = upgradeArgs;
+    hive.upgradeSpot = new RoomPosition(upgradeArgs.x, upgradeArgs.y, upgradeArgs.roomName);
+
+    hive.established = true;
+  }
+
+  public processCreeps(hive: Hive) {
     const roleCount: RoleCount = {};
     for (const creep in hive.creeps) {
       if (creep in Game.creeps) {
         const role = Game.creeps[creep].memory.role;
-        this.roles[role].run(Game.creeps[creep], hive.creeps[creep]);
+        this.roles[role].run(Game.creeps[creep], hive.creeps[creep], hive);
         roleCount[role] = (roleCount[role] || 0) + 1;
       } else {
         delete hive.creeps[creep];
         delete Memory.creeps[creep];
       }
     }
-
-    return roleCount;
+    hive.roleCount = roleCount;
   }
 
-  public spawnCreeps(room: Room, roleCount: RoleCount, hive: Hive) {
+  public spawnCreeps(hive: Hive) {
     for (const role in desiredRoles) {
       const dCount = desiredRoles[role] || 0;
-      const rCount = roleCount[role] || 0;
+      const rCount = hive.roleCount[role] || 0;
 
       if (dCount > rCount) {
-        const spawn = this.findSpawn(room);
+        const spawn = this.findSpawn(hive.homeRoom);
         if (spawn) {
           const rslt = this.roles[role].create(spawn);
           if (rslt) {

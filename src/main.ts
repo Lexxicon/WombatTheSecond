@@ -3,6 +3,7 @@ import { RoomManager } from "./managers/RoomManager";
 import { Miner } from "./roles/miner";
 import { Role } from "./roles/role";
 import { LoggerFactory } from "./util/LoggerFactory";
+import { wrapLoop as MemCache } from "./util/MemCache";
 
 const log = LoggerFactory.getLogger("main");
 
@@ -24,5 +25,6 @@ const roles = {
 const roomManager = new RoomManager(roles);
 
 export const loop = () => {
+  roomManager.prep();
   _.forEach(Game.rooms, (r) => roomManager.process(r));
 };

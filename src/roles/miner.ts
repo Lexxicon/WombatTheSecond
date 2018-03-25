@@ -1,3 +1,4 @@
+import { Hive } from "../managers/RoomManager";
 import { Role } from "./role";
 
 interface MinerMemory {
@@ -7,7 +8,8 @@ enum State {
   HARVEST,
   FILL,
   BUILD,
-  UPGRADE
+  UPGRADE,
+  REPAIR
 }
 
 export class Miner implements Role<MinerMemory> {
@@ -26,10 +28,10 @@ export class Miner implements Role<MinerMemory> {
     return { state: State.HARVEST };
   }
 
-  public run(creep: Creep, mem: MinerMemory): void {
+  public run(creep: Creep, mem: MinerMemory, hiveMem: Hive): void {
     if (mem.state === undefined) { mem.state = State.HARVEST; }
     const state = mem.state;
-    this.actions[mem.state](creep, mem);
+    this.actions[mem.state](creep, mem, hiveMem);
     if (mem.state !== state) {
       creep.say(this.icons[mem.state]);
     }
@@ -39,18 +41,33 @@ export class Miner implements Role<MinerMemory> {
     [State.HARVEST]: "🔄",
     [State.FILL]: "⇄",
     [State.BUILD]: "🔨",
-    [State.UPGRADE]: "🙏"
+    [State.UPGRADE]: "🙏",
+    [State.REPAIR]: "🔧"
   };
 
   private actions = {
     [State.HARVEST]: this.harvest,
     [State.FILL]: this.fill,
     [State.BUILD]: this.build,
-    [State.UPGRADE]: this.upgrade
-
+    [State.UPGRADE]: this.upgrade,
+    [State.REPAIR]: this.repair
   };
 
-  protected fill(creep: Creep, mem: MinerMemory) {
+  protected repair(creep: Creep, mem: MinerMemory, hive: Hive) {
+    if (creep.carry.energy === 0) {
+      mem.state = State.HARVEST;
+      return;
+    }
+    if (hive.needsRepair.length === 0) {
+      mem.state = State.BUILD;
+      return;
+    }
+    if (creep.repair(hive.needsRepair[0]) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(hive.needsRepair[0]);
+    }
+  }
+
+  protected fill(creep: Creep, mem: MinerMemory, hive: Hive) {
     const spawns = creep.room.find(FIND_MY_SPAWNS, { filter: (s) => s.energy < s.energyCapacity });
     let fillTarget;
     if (spawns.length > 0) {
@@ -76,7 +93,7 @@ export class Miner implements Role<MinerMemory> {
     }
   }
 
-  protected build(creep: Creep, mem: MinerMemory) {
+  protected build(creep: Creep, mem: MinerMemory, hive: Hive) {
     const sites = creep.room.find(FIND_CONSTRUCTION_SITES);
     if (sites.length > 0 && creep.carry.energy > 0) {
       if (creep.build(sites[0]) === ERR_NOT_IN_RANGE) {
@@ -91,7 +108,7 @@ export class Miner implements Role<MinerMemory> {
     }
   }
 
-  protected upgrade(creep: Creep, mem: MinerMemory) {
+  protected upgrade(creep: Creep, mem: MinerMemory, hive: Hive) {
     if (creep.room.controller) {
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller);
@@ -103,7 +120,7 @@ export class Miner implements Role<MinerMemory> {
     }
   }
 
-  protected harvest(creep: Creep, mem: MinerMemory) {
+  protected harvest(creep: Creep, mem: MinerMemory, hive: Hive) {
     const source = creep.pos.findClosestByPath(FIND_SOURCES);
     if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
       creep.moveTo(source);
@@ -112,6 +129,8 @@ export class Miner implements Role<MinerMemory> {
     if (creep.carry.energy === creep.carryCapacity) {
       if (creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
         mem.state = State.FILL;
+      } else if (hive.needsRepair.length > 0) {
+        mem.state = State.REPAIR;
       } else if (creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
         mem.state = State.BUILD;
       } else {
