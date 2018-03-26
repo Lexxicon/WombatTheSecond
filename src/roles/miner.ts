@@ -3,6 +3,7 @@ import { Role } from "./role";
 
 interface MinerMemory {
   state: State;
+  pickupTarget?: string;
 }
 enum State {
   HARVEST,
@@ -86,7 +87,7 @@ export class Miner implements Role<MinerMemory> {
       }
     } else {
       if (creep.carryCapacity > 0) {
-        mem.state = State.UPGRADE;
+        mem.state = State.BUILD;
       } else {
         mem.state = State.HARVEST;
       }
@@ -103,7 +104,7 @@ export class Miner implements Role<MinerMemory> {
       if (creep.carry.energy === 0) {
         mem.state = State.HARVEST;
       } else {
-        mem.state = State.FILL;
+        mem.state = State.UPGRADE;
       }
     }
   }
@@ -121,12 +122,28 @@ export class Miner implements Role<MinerMemory> {
   }
 
   protected harvest(creep: Creep, mem: MinerMemory, hive: Hive) {
-    const source = creep.pos.findClosestByPath(FIND_SOURCES);
-    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(source);
+
+    const found = hive.harvestSpots
+      .map((f) => f.lookFor(LOOK_STRUCTURES)[0] || {})
+      .filter((f) => f.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
+    let pickup = Game.getObjectById(mem.pickupTarget) as StructureContainer;
+    if ((pickup === undefined || pickup === null) && found.length > 0) {
+      pickup = found.reduce((a, b) => a.store.energy > b.store.energy ? a : b);
+    }
+    if (pickup !== undefined && pickup.store.energy > 50) {
+      mem.pickupTarget = pickup.id;
+      if (creep.withdraw(pickup, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(pickup);
+      }
+    } else {
+      const source = creep.pos.findClosestByPath(FIND_SOURCES);
+      if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(source);
+      }
     }
 
     if (creep.carry.energy === creep.carryCapacity) {
+      mem.pickupTarget = undefined;
       if (creep.room.energyAvailable < creep.room.energyCapacityAvailable) {
         mem.state = State.FILL;
       } else if (hive.needsRepair.length > 0) {

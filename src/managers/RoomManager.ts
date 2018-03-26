@@ -38,8 +38,14 @@ interface RoleCount {
 }
 
 const desiredRoles = {
-  MINER: 6
-} as RoleCount;
+  [HiveState.GROWTH]: {
+    MINER: 14,
+    EXTRACTOR: 2
+  } as RoleCount,
+  [HiveState.SETUP]: {
+    MINER: 12
+  } as RoleCount,
+};
 
 export class RoomManager {
   private roomMem: ManagerMemory;
@@ -82,7 +88,7 @@ export class RoomManager {
   }
 
   private getHiveMem(room: Room) {
-    _.defaults(this.roomMem[room.name], {
+    this.roomMem[room.name] = _.defaults(this.roomMem[room.name] || {}, {
       state: HiveState.SETUP,
       homeRoomName: room.name,
       established: false,
@@ -128,11 +134,59 @@ export class RoomManager {
     if (hive.state === HiveState.SETUP) {
       hive.state = HiveState.GROWTH;
     }
+    const extensions = hive.homeRoom.find(FIND_STRUCTURES, { filter: (f) => f.structureType === STRUCTURE_EXTENSION });
+    if (extensions.length < CONTROLLER_STRUCTURES.extension[hive.homeRoom.controller!.level]) {
+      const spawn = hive.homeRoom.find(FIND_MY_SPAWNS)[0];
+      const tryPoint = new RoomPosition(spawn.pos.x, spawn.pos.y, spawn.pos.roomName);
+      tryPoint.x = spawn.pos.x + 5;
+      if (this.tryPlaceExtension(tryPoint)) {
+        return;
+      }
+      tryPoint.x = spawn.pos.x - 5;
+      if (this.tryPlaceExtension(tryPoint)) {
+        return;
+      }
+      tryPoint.x = spawn.pos.x;
+      tryPoint.y = spawn.pos.y + 5;
+      if (this.tryPlaceExtension(tryPoint)) {
+        return;
+      }
+      tryPoint.y = spawn.pos.y - 5;
+      if (this.tryPlaceExtension(tryPoint)) {
+        return;
+      }
+    }
 
     if (hive.upgradeSpot.lookFor(LOOK_STRUCTURES).length === 0) {
       hive.upgradeSpot.createConstructionSite(STRUCTURE_CONTAINER);
       return;
     }
+  }
+
+  public tryPlaceExtension(origin: RoomPosition) {
+    const testPos = new RoomPosition(origin.x, origin.y, origin.roomName);
+    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
+      return true;
+    }
+    testPos.x = origin.x + 1;
+    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
+      return true;
+    }
+    testPos.x = origin.x - 1;
+    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
+      return true;
+    }
+    testPos.x = origin.x;
+    testPos.y = origin.y + 1;
+    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
+      return true;
+    }
+    testPos.y = origin.y - 1;
+    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
+      return true;
+    }
+
+    return false;
   }
 
   public establishHive(hive: Hive) {
@@ -163,8 +217,9 @@ export class RoomManager {
     for (const creep in hive.creeps) {
       if (creep in Game.creeps) {
         const role = Game.creeps[creep].memory.role;
-        this.roles[role].run(Game.creeps[creep], hive.creeps[creep], hive);
         roleCount[role] = (roleCount[role] || 0) + 1;
+        if (Game.creeps[creep].spawning) { continue; }
+        this.roles[role].run(Game.creeps[creep], hive.creeps[creep], hive);
       } else {
         delete hive.creeps[creep];
         delete Memory.creeps[creep];
@@ -174,8 +229,8 @@ export class RoomManager {
   }
 
   public spawnCreeps(hive: Hive) {
-    for (const role in desiredRoles) {
-      const dCount = desiredRoles[role] || 0;
+    for (const role in desiredRoles[hive.state]) {
+      const dCount = desiredRoles[hive.state][role] || 0;
       const rCount = hive.roleCount[role] || 0;
 
       if (dCount > rCount) {
