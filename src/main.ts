@@ -1,6 +1,7 @@
 import { BUILD_TIME, REVISION } from "./build_info";
 import { RoomManager } from "./managers/RoomManager";
 import { Extractor } from "./roles/extractor";
+import { Hauler } from "./roles/hauler";
 import { Miner } from "./roles/miner";
 import { Role } from "./roles/role";
 import { LoggerFactory } from "./util/LoggerFactory";
@@ -19,10 +20,12 @@ if (Memory.revision !== REVISION || Memory.buildTime !== BUILD_TIME) {
 
 const miner = new Miner();
 const extractor = new Extractor();
+const hauler = new Hauler();
 
 const roles = {
   [miner.id]: miner,
-  [extractor.id]: extractor
+  [extractor.id]: extractor,
+  [hauler.id]: hauler
 };
 
 const roomManager = new RoomManager(roles);

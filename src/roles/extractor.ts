@@ -20,7 +20,14 @@ export class Extractor implements Role<ExtractorMemory> {
   public id = "EXTRACTOR";
 
   public create(spawn: StructureSpawn): string | undefined {
-    const rslt = spawn.createCreep([WORK, WORK, MOVE], undefined, { role: this.id });
+    let size = spawn.room.energyAvailable / (BODYPART_COST[WORK] * 2 + BODYPART_COST[MOVE]);
+    size = Math.min(size, 7);
+    const body: BodyPartConstant[] = [];
+    while (size > 0) {
+      size--;
+      body.push(WORK, WORK, MOVE);
+    }
+    const rslt = spawn.createCreep(body, undefined, { role: this.id });
     if (_.isString(rslt)) {
       return rslt;
     }

@@ -15,7 +15,7 @@ export class Hauler implements Role<HaulerMemory> {
   public id = "HAUlER";
 
   public create(spawn: StructureSpawn): string | undefined {
-    const rslt = spawn.createCreep([MOVE, CARRY], undefined, { role: this.id });
+    const rslt = spawn.createCreep([MOVE, CARRY, CARRY, MOVE, CARRY, CARRY], undefined, { role: this.id });
     if (_.isString(rslt)) {
       return rslt;
     }

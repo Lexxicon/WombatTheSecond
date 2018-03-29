@@ -39,11 +39,12 @@ interface RoleCount {
 
 const desiredRoles = {
   [HiveState.GROWTH]: {
-    MINER: 14,
-    EXTRACTOR: 2
+    MINER: 10,
+    EXTRACTOR: 2,
+    HAUlER: 4
   } as RoleCount,
   [HiveState.SETUP]: {
-    MINER: 12
+    MINER: 6
   } as RoleCount,
 };
 
@@ -135,24 +136,9 @@ export class RoomManager {
       hive.state = HiveState.GROWTH;
     }
     const extensions = hive.homeRoom.find(FIND_STRUCTURES, { filter: (f) => f.structureType === STRUCTURE_EXTENSION });
+    const extOffset = 3;
     if (extensions.length < CONTROLLER_STRUCTURES.extension[hive.homeRoom.controller!.level]) {
-      const spawn = hive.homeRoom.find(FIND_MY_SPAWNS)[0];
-      const tryPoint = new RoomPosition(spawn.pos.x, spawn.pos.y, spawn.pos.roomName);
-      tryPoint.x = spawn.pos.x + 5;
-      if (this.tryPlaceExtension(tryPoint)) {
-        return;
-      }
-      tryPoint.x = spawn.pos.x - 5;
-      if (this.tryPlaceExtension(tryPoint)) {
-        return;
-      }
-      tryPoint.x = spawn.pos.x;
-      tryPoint.y = spawn.pos.y + 5;
-      if (this.tryPlaceExtension(tryPoint)) {
-        return;
-      }
-      tryPoint.y = spawn.pos.y - 5;
-      if (this.tryPlaceExtension(tryPoint)) {
+      if (this.tryPlaceExtension(hive)) {
         return;
       }
     }
@@ -163,7 +149,31 @@ export class RoomManager {
     }
   }
 
-  public tryPlaceExtension(origin: RoomPosition) {
+  public tryPlaceExtension(hive: Hive) {
+    const extOffset = 3;
+    const spawn = hive.homeRoom.find(FIND_MY_SPAWNS)[0];
+    const tryPoint = new RoomPosition(spawn.pos.x, spawn.pos.y, spawn.pos.roomName);
+    tryPoint.x = spawn.pos.x + extOffset;
+    if (this.tryPlaceExtensionCross(tryPoint)) {
+      return true;
+    }
+    tryPoint.x = spawn.pos.x - extOffset;
+    if (this.tryPlaceExtensionCross(tryPoint)) {
+      return true;
+    }
+    tryPoint.x = spawn.pos.x;
+    tryPoint.y = spawn.pos.y + extOffset;
+    if (this.tryPlaceExtensionCross(tryPoint)) {
+      return true;
+    }
+    tryPoint.y = spawn.pos.y - extOffset;
+    if (this.tryPlaceExtensionCross(tryPoint)) {
+      return true;
+    }
+    return false;
+  }
+
+  public tryPlaceExtensionCross(origin: RoomPosition) {
     const testPos = new RoomPosition(origin.x, origin.y, origin.roomName);
     if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
       return true;

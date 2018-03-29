@@ -18,7 +18,13 @@ export class Miner implements Role<MinerMemory> {
   public id = "MINER";
 
   public create(spawn: StructureSpawn): string | undefined {
-    const rslt = spawn.createCreep([WORK, MOVE, CARRY], undefined, { role: this.id });
+    let size = spawn.room.energyAvailable / (BODYPART_COST[WORK] + BODYPART_COST[MOVE] + BODYPART_COST[CARRY]);
+    const body: BodyPartConstant[] = [];
+    while (size > 0) {
+      size--;
+      body.push(WORK, CARRY, MOVE);
+    }
+    const rslt = spawn.createCreep(body, undefined, { role: this.id });
     if (_.isString(rslt)) {
       return rslt;
     }
