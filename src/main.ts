@@ -1,5 +1,6 @@
 import { BUILD_TIME, REVISION } from "./build_info";
 import { RoomManager } from "./managers/RoomManager";
+import { Tower } from "./managers/Tower";
 import { Extractor } from "./roles/extractor";
 import { Hauler } from "./roles/hauler";
 import { Miner } from "./roles/miner";
@@ -29,8 +30,14 @@ const roles = {
 };
 
 const roomManager = new RoomManager(roles);
-
+const turretManager = new Tower();
 export const loop = () => {
+
   roomManager.prep();
   _.forEach(Game.rooms, (r) => roomManager.process(r));
+  try {
+    turretManager.run();
+  } catch (e) {
+    log.error("" + e);
+  }
 };

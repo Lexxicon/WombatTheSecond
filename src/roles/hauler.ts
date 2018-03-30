@@ -10,12 +10,21 @@ enum State {
   PICKUP,
   DROPOFF
 }
+const NON_FULL_TOWER = {
+  filter: (f: AnyStructure) => f.structureType === STRUCTURE_TOWER && f.energy < f.energyCapacity
+};
 
 export class Hauler implements Role<HaulerMemory> {
   public id = "HAUlER";
 
   public create(spawn: StructureSpawn): string | undefined {
-    const rslt = spawn.createCreep([MOVE, CARRY, CARRY, MOVE, CARRY, CARRY], undefined, { role: this.id });
+    let size = Math.min(spawn.room.energyAvailable / (BODYPART_COST[MOVE] + BODYPART_COST[CARRY]), 10);
+    const body: BodyPartConstant[] = [];
+    while (size > 0) {
+      size--;
+      body.push(CARRY, MOVE);
+    }
+    const rslt = spawn.createCreep(body, undefined, { role: this.id });
     if (_.isString(rslt)) {
       return rslt;
     }
@@ -43,6 +52,7 @@ export class Hauler implements Role<HaulerMemory> {
         }
         memory.destination = this.findDestination(creep, memory, hive);
       }
+      return;
     }
 
     if (memory.state === State.DROPOFF) {
@@ -54,6 +64,7 @@ export class Hauler implements Role<HaulerMemory> {
         }
         memory.destination = this.findDestination(creep, memory, hive);
       }
+      return;
     }
   }
 
@@ -68,7 +79,12 @@ export class Hauler implements Role<HaulerMemory> {
 
     if (memory.state === State.DROPOFF) {
       if (hive.homeRoom.energyAvailable < hive.homeRoom.energyCapacityAvailable) {
-        return this.findSpawnRefill(hive.homeRoom);
+        return this.findSpawnRefill(creep);
+      }
+
+      const towers = hive.homeRoom.find(FIND_STRUCTURES, NON_FULL_TOWER) as StructureTower[];
+      if (towers.length > 0) {
+        return towers[0].pos;
       }
 
       const upgrade = hive.upgradeSpot.lookFor(LOOK_STRUCTURES)[0] as StructureContainer;
@@ -83,16 +99,16 @@ export class Hauler implements Role<HaulerMemory> {
     return { x: 0, y: 0, roomName: "" };
   }
 
-  private findSpawnRefill(room: Room) {
-    const spawns = room.find(FIND_MY_SPAWNS, { filter: (s) => s.energy < s.energyCapacity });
+  private findSpawnRefill(creep: Creep) {
+    const spawns = creep.room.find(FIND_MY_SPAWNS, { filter: (s) => s.energy < s.energyCapacity });
     let fillTarget = { x: 0, y: 0, roomName: "" };
     if (spawns.length > 0) {
       fillTarget = spawns[0].pos;
     } else {
-      const extensions = room.find(FIND_MY_STRUCTURES,
+      const extensions = creep.pos.findClosestByRange(FIND_MY_STRUCTURES,
         { filter: (s) => s.structureType === STRUCTURE_EXTENSION && s.energy < s.energyCapacity });
-      if (extensions.length > 0) {
-        fillTarget = extensions[0].pos;
+      if (extensions) {
+        fillTarget = extensions.pos;
       }
     }
     return fillTarget;

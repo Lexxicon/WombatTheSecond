@@ -12,7 +12,6 @@ enum State {
   UPGRADE,
   REPAIR
 }
-
 export class Miner implements Role<MinerMemory> {
 
   public id = "MINER";
@@ -75,10 +74,10 @@ export class Miner implements Role<MinerMemory> {
   }
 
   protected fill(creep: Creep, mem: MinerMemory, hive: Hive) {
-    const spawns = creep.room.find(FIND_MY_SPAWNS, { filter: (s) => s.energy < s.energyCapacity });
+    const spawns = creep.pos.findClosestByRange(FIND_MY_SPAWNS, { filter: (s) => s.energy < s.energyCapacity });
     let fillTarget;
-    if (spawns.length > 0) {
-      fillTarget = spawns[0];
+    if (spawns) {
+      fillTarget = spawns;
     } else {
       const extensions = creep.room.find(FIND_MY_STRUCTURES,
         { filter: (s) => s.structureType === STRUCTURE_EXTENSION && s.energy < s.energyCapacity });
@@ -123,6 +122,13 @@ export class Miner implements Role<MinerMemory> {
     }
 
     if (creep.carry.energy === 0) {
+      const upgradeBox = hive.upgradeSpot.lookFor(LOOK_STRUCTURES) as StructureContainer[];
+      if (upgradeBox.length > 0 && upgradeBox[0].store.energy > 0) {
+        if (creep.withdraw(upgradeBox[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(upgradeBox[0]);
+          return;
+        }
+      }
       mem.state = State.HARVEST;
     }
   }
@@ -131,8 +137,11 @@ export class Miner implements Role<MinerMemory> {
 
     const found = hive.harvestSpots
       .map((f) => f.lookFor(LOOK_STRUCTURES)[0] || {})
-      .filter((f) => f.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
-    let pickup = Game.getObjectById(mem.pickupTarget) as StructureContainer;
+      .filter((f) => f.structureType === STRUCTURE_CONTAINER) as Array<StructureContainer | StructureStorage>;
+    if (hive.homeRoom.storage !== undefined) {
+      found.push(hive.homeRoom.storage);
+    }
+    let pickup = Game.getObjectById(mem.pickupTarget) as StructureContainer | StructureStorage;
     if ((pickup === undefined || pickup === null) && found.length > 0) {
       pickup = found.reduce((a, b) => a.store.energy > b.store.energy ? a : b);
     }

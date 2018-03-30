@@ -1,4 +1,5 @@
 import { Role } from "../roles/role";
+import { RoomPlanner } from "./RoomPlanner";
 
 interface ManagerMemory {
   [roomName: string]: Hive;
@@ -8,6 +9,8 @@ enum HiveState {
   SETUP,
   GROWTH
 }
+
+const planner = new RoomPlanner();
 
 export interface Hive {
   state: HiveState;
@@ -39,12 +42,12 @@ interface RoleCount {
 
 const desiredRoles = {
   [HiveState.GROWTH]: {
-    MINER: 10,
+    MINER: 5,
     EXTRACTOR: 2,
     HAUlER: 4
   } as RoleCount,
   [HiveState.SETUP]: {
-    MINER: 6
+    MINER: 5
   } as RoleCount,
 };
 
@@ -138,7 +141,7 @@ export class RoomManager {
     const extensions = hive.homeRoom.find(FIND_STRUCTURES, { filter: (f) => f.structureType === STRUCTURE_EXTENSION });
     const extOffset = 3;
     if (extensions.length < CONTROLLER_STRUCTURES.extension[hive.homeRoom.controller!.level]) {
-      if (this.tryPlaceExtension(hive)) {
+      if (planner.tryPlaceExtension(hive)) {
         return;
       }
     }
@@ -147,56 +150,6 @@ export class RoomManager {
       hive.upgradeSpot.createConstructionSite(STRUCTURE_CONTAINER);
       return;
     }
-  }
-
-  public tryPlaceExtension(hive: Hive) {
-    const extOffset = 3;
-    const spawn = hive.homeRoom.find(FIND_MY_SPAWNS)[0];
-    const tryPoint = new RoomPosition(spawn.pos.x, spawn.pos.y, spawn.pos.roomName);
-    tryPoint.x = spawn.pos.x + extOffset;
-    if (this.tryPlaceExtensionCross(tryPoint)) {
-      return true;
-    }
-    tryPoint.x = spawn.pos.x - extOffset;
-    if (this.tryPlaceExtensionCross(tryPoint)) {
-      return true;
-    }
-    tryPoint.x = spawn.pos.x;
-    tryPoint.y = spawn.pos.y + extOffset;
-    if (this.tryPlaceExtensionCross(tryPoint)) {
-      return true;
-    }
-    tryPoint.y = spawn.pos.y - extOffset;
-    if (this.tryPlaceExtensionCross(tryPoint)) {
-      return true;
-    }
-    return false;
-  }
-
-  public tryPlaceExtensionCross(origin: RoomPosition) {
-    const testPos = new RoomPosition(origin.x, origin.y, origin.roomName);
-    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
-      return true;
-    }
-    testPos.x = origin.x + 1;
-    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
-      return true;
-    }
-    testPos.x = origin.x - 1;
-    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
-      return true;
-    }
-    testPos.x = origin.x;
-    testPos.y = origin.y + 1;
-    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
-      return true;
-    }
-    testPos.y = origin.y - 1;
-    if (testPos.createConstructionSite(STRUCTURE_EXTENSION) === OK) {
-      return true;
-    }
-
-    return false;
   }
 
   public establishHive(hive: Hive) {
