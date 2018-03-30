@@ -116,7 +116,7 @@ export class RoomManager {
   }
 
   public findRepairJobs(hive: Hive) {
-    for (const struct of hive.homeRoom.find(FIND_STRUCTURES)) {
+    for (const struct of hive.homeRoom.find(FIND_MY_STRUCTURES).filter((f) => f.structureType !== STRUCTURE_RAMPART)) {
       if (struct.hits < (struct.hitsMax * 0.9) && hive.needsRepairId.indexOf(struct.id) < 0) {
         hive.needsRepairId.push(struct.id);
       }
@@ -192,6 +192,10 @@ export class RoomManager {
   }
 
   public spawnCreeps(hive: Hive) {
+    if (hive.homeRoom.energyAvailable < hive.homeRoom.energyCapacityAvailable * 0.7 &&
+      (hive.roleCount.MINER || 0) > 1) {
+      return;
+    }
     for (const role in desiredRoles[hive.state]) {
       const dCount = desiredRoles[hive.state][role] || 0;
       const rCount = hive.roleCount[role] || 0;

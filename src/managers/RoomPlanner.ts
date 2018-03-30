@@ -2,6 +2,10 @@ import { Hive } from "./RoomManager";
 
 export class RoomPlanner {
 
+  public tryPlaceRoad(hive: Hive) {
+    //
+  }
+
   public tryPlaceExtension(hive: Hive) {
     const extOffset = 3;
     const spawn = hive.homeRoom.find(FIND_MY_SPAWNS)[0];

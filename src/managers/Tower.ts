@@ -7,7 +7,7 @@ const DAMAGED_ROADS = {
 };
 const DAMAGED_WALLS = {
   filter: (f: AnyStructure) => {
-    return (f.structureType === STRUCTURE_WALL || f.structureType === STRUCTURE_RAMPART) && f.hits < f.hitsMax;
+    return (f.structureType === STRUCTURE_WALL || f.structureType === STRUCTURE_RAMPART) && f.hits < 100000;
   }
 };
 const score = {
@@ -50,7 +50,7 @@ export class Tower {
         repTargets = t.room.find(FIND_STRUCTURES, DAMAGED_ROADS);
       }
       if (repTargets.length === 0) {
-        repTargets = t.room.find(FIND_STRUCTURES, DAMAGED_ROADS);
+        repTargets = t.room.find(FIND_STRUCTURES, DAMAGED_WALLS);
       }
       if (repTargets.length === 0) {
         return;
