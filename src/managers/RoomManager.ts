@@ -75,7 +75,8 @@ export class RoomManager {
       if (hive.needsRepairId !== undefined) {
         hive.needsRepairId = hive.needsRepairId.filter((f) => {
           const struct = Game.getObjectById(f) as Structure;
-          if (struct !== null && struct.hits < struct.hitsMax) {
+          if (struct !== null && struct.hits < struct.hitsMax
+            && struct.structureType !== STRUCTURE_WALL && struct.structureType !== STRUCTURE_RAMPART) {
             hive.needsRepair.push(struct);
             return true;
           }
