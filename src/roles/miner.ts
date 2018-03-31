@@ -134,6 +134,10 @@ export class Miner implements Role<MinerMemory> {
   }
 
   protected harvest(creep: Creep, mem: MinerMemory, hive: Hive) {
+    if (creep.ticksToLive && creep.ticksToLive < 100) {
+      creep.suicide();
+      return;
+    }
 
     const found = hive.harvestSpots
       .map((f) => f.lookFor(LOOK_STRUCTURES)[0] || {})

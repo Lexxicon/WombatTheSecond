@@ -117,7 +117,7 @@ export class RoomManager {
   }
 
   public findRepairJobs(hive: Hive) {
-    for (const struct of hive.homeRoom.find(FIND_MY_STRUCTURES).filter((f) => f.structureType !== STRUCTURE_RAMPART)) {
+    for (const struct of hive.homeRoom.find(FIND_STRUCTURES).filter((f) => f.structureType !== STRUCTURE_RAMPART)) {
       if (struct.hits < (struct.hitsMax * 0.9) && hive.needsRepairId.indexOf(struct.id) < 0) {
         hive.needsRepairId.push(struct.id);
       }

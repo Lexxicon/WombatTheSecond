@@ -1,6 +1,11 @@
 
 const DAMAGED_BUILDINGS = {
-  filter: (f: AnyStructure) => f.structureType !== STRUCTURE_RAMPART && f.hits < f.hitsMax
+  filter: (f: AnyStructure) => {
+    return f.structureType !== STRUCTURE_RAMPART
+      && f.structureType !== STRUCTURE_WALL
+      && f.structureType !== STRUCTURE_ROAD
+      && f.hits < f.hitsMax;
+  }
 };
 const DAMAGED_ROADS = {
   filter: (f: AnyStructure) => f.structureType === STRUCTURE_ROAD && f.hits < f.hitsMax
@@ -45,7 +50,7 @@ export class Tower {
     }
 
     if (t.energy > t.energyCapacity * 0.7) {
-      let repTargets: AnyStructure[] = t.room.find(FIND_MY_STRUCTURES, DAMAGED_BUILDINGS);
+      let repTargets: AnyStructure[] = t.room.find(FIND_STRUCTURES, DAMAGED_BUILDINGS);
       if (repTargets.length === 0) {
         repTargets = t.room.find(FIND_STRUCTURES, DAMAGED_ROADS);
       }

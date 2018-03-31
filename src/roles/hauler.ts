@@ -41,10 +41,12 @@ export class Hauler implements Role<HaulerMemory> {
     }
 
     const pos = new RoomPosition(memory.destination.x, memory.destination.y, memory.destination.roomName);
-    const struct = pos.lookFor(LOOK_STRUCTURES)[0];
+    const struct = (pos.lookFor(LOOK_STRUCTURES)[0] || pos.lookFor(LOOK_TOMBSTONES)[0]);
 
     if (memory.state === State.PICKUP) {
-      if (creep.withdraw(struct, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      const pile = pos.lookFor(LOOK_ENERGY)[0];
+      if ((pile && creep.pickup(pile) === ERR_NOT_IN_RANGE)
+        || creep.withdraw(struct, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(pos);
       } else {
         if (creep.carry.energy === creep.carryCapacity) {
@@ -60,6 +62,9 @@ export class Hauler implements Role<HaulerMemory> {
         creep.moveTo(pos);
       } else {
         if (creep.carry.energy === 0) {
+          if (creep.ticksToLive && creep.ticksToLive < 100) {
+            creep.suicide();
+          }
           memory.state = State.PICKUP;
         }
         memory.destination = this.findDestination(creep, memory, hive);
@@ -72,9 +77,17 @@ export class Hauler implements Role<HaulerMemory> {
     if (memory.state === State.PICKUP) {
       const found = hive.harvestSpots
         .map((f) => f.lookFor(LOOK_STRUCTURES)[0])
-        .filter((f) => f.structureType === STRUCTURE_CONTAINER) as StructureContainer[];
+        .filter((f) => f !== undefined && f.structureType === STRUCTURE_CONTAINER)
+        .map((f) => ({
+          amount: (f as StructureContainer).store.energy,
+          pos: f.pos
+        }));
 
-      return found.reduce((a, b) => a.store.energy > b.store.energy ? a : b).pos;
+      const piles = creep.room.find(FIND_DROPPED_RESOURCES, { filter: (f) => f.resourceType === RESOURCE_ENERGY });
+      found.push(...piles);
+      const tomb = creep.room.find(FIND_TOMBSTONES).map((f) => ({ amount: f.store.energy, pos: f.pos }));
+      found.push(...tomb);
+      return found.reduce((a, b) => a.amount > b.amount ? a : b).pos;
     }
 
     if (memory.state === State.DROPOFF) {
