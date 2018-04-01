@@ -1,6 +1,7 @@
 import { BUILD_TIME, REVISION } from "./build_info";
 import { RoomManager } from "./managers/RoomManager";
 import { Tower } from "./managers/Tower";
+import "./prototypes/*";
 import { Extractor } from "./roles/extractor";
 import { Hauler } from "./roles/hauler";
 import { Miner } from "./roles/miner";

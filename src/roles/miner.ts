@@ -88,7 +88,7 @@ export class Miner implements Role<MinerMemory> {
 
     if (fillTarget && creep.carry.energy > 0) {
       if (creep.transfer(fillTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(fillTarget);
+        creep.moveTo(fillTarget, { range: 1 });
       }
     } else {
       if (creep.carryCapacity > 0) {
@@ -117,7 +117,7 @@ export class Miner implements Role<MinerMemory> {
   protected upgrade(creep: Creep, mem: MinerMemory, hive: Hive) {
     if (creep.room.controller) {
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller);
+        creep.moveTo(creep.room.controller, { range: 1 });
       }
     }
 
@@ -157,7 +157,7 @@ export class Miner implements Role<MinerMemory> {
     } else {
       const source = creep.pos.findClosestByPath(FIND_SOURCES);
       if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(source);
+        creep.moveTo(source, { range: 1 });
       }
     }
 

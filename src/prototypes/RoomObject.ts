@@ -2,13 +2,14 @@
  * Pushdown automata state machine
  */
 interface RoomObject {
-  memory: { stack: any[] | undefined };
-  [method: string]: any;
+  memory: { stack: Array<string | any> | undefined } & any;
+  [sig: string]: ((scope: any) => void) | any;
   invokeState(): boolean;
   setState(state: string, scope: any): string;
   getState(state: string): string;
   pushState(state: string, scope: any): string;
 }
+
 /** Call this to run the current state */
 RoomObject.prototype.invokeState = function() {
   if (!this.memory.stack || !this.memory.stack.length) {
@@ -37,7 +38,7 @@ RoomObject.prototype.getState = function(defaultState = "I") {
  * @param {string} state - Name of state to switch to.
  * @param {*} scope - Any data you want to supply to the state.
  */
-RoomObject.prototype.setState = function(state, scope) {
+RoomObject.prototype.setState = function(state: any, scope: any) {
   if (state == null) {
     throw new TypeError("State can not be null");
   }
@@ -52,7 +53,7 @@ RoomObject.prototype.setState = function(state, scope) {
  * @param {string} state - Name of state to push
  * @param {*} scope - Any data you want to supply to the state.
  */
-RoomObject.prototype.pushState = function(state, scope = {}) {
+RoomObject.prototype.pushState = function(state: any, scope = {}) {
   if (!this.memory.stack) {
     this.memory.stack = [];
   }
@@ -82,34 +83,3 @@ RoomObject.prototype.popState = function() {
 RoomObject.prototype.clearState = function() {
   this.memory.stack = undefined;
 };
-
-// /** Example state - goto location */
-// Creep.prototype.runGoto = function (scope) {
-// 	var { pos, range = 1 } = scope;
-// 	var roomPos = _.create(RoomPosition.prototype, pos);
-// 	if (this.moveTo(roomPos, { range: range }) === ERR_NO_PATH)
-// 		this.popState();
-// };
-
-// /** Example state - goto room */
-// Creep.prototype.runGotoRoom = function (scope) {
-// 	if (this.moveToRoom(scope) === ERR_NO_PATH)
-// 		this.popState();
-// };
-
-// /**
-//  * Example - Heal self and flee
-//  * Push this state when you start to get hurt. Creep will heal
-//  * and go back to what it was doing. If it keeps getting hurt, it
-//  * will leave the room, and try to go back to healing.
-//  */
-// Creep.prototype.runHealSelf = function (scope) {
-// 	this.heal(this);
-// 	// take this opportunity to flee
-// 	if (this.hits >= this.hitsMax) { // If we're back to full, we're done
-// 		return this.popState();
-// 	} else if(this.hits / this.hitsMax < 0.5) { // Otherwise run away
-// 		// Find neighboring room
-// 		this.pushState('GotoRoom', /* neighbor */);
-// 	}
-// };
