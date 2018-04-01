@@ -96,6 +96,7 @@ export class Hauler implements Role<HaulerMemory> {
       }
 
       const towers = hive.homeRoom.find(FIND_STRUCTURES, NON_FULL_TOWER) as StructureTower[];
+      towers.sort((a, b) => a.energy - b.energy);
       if (towers.length > 0) {
         return towers[0].pos;
       }
