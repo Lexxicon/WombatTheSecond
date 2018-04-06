@@ -7,7 +7,8 @@ interface ManagerMemory {
 
 enum HiveState {
   SETUP,
-  GROWTH
+  GROWTH,
+  RECOVERY
 }
 
 const planner = new RoomPlanner();
@@ -47,6 +48,9 @@ const desiredRoles = {
     HAUlER: 4
   } as RoleCount,
   [HiveState.SETUP]: {
+    MINER: 5
+  } as RoleCount,
+  [HiveState.RECOVERY]: {
     MINER: 5
   } as RoleCount,
 };
@@ -110,6 +114,7 @@ export class RoomManager {
     if (!hive.established) {
       this.establishHive(hive);
     }
+
     this.findRepairJobs(hive);
     this.updateConstructionJobs(hive);
     this.processCreeps(hive);
@@ -178,7 +183,9 @@ export class RoomManager {
 
   public processCreeps(hive: Hive) {
     const roleCount: RoleCount = {};
+    let count = 0;
     for (const creep in hive.creeps) {
+      count++;
       if (creep in Game.creeps) {
         const role = Game.creeps[creep].memory.role;
         roleCount[role] = (roleCount[role] || 0) + 1;
@@ -189,6 +196,14 @@ export class RoomManager {
         delete Memory.creeps[creep];
       }
     }
+    if (count === 0) {
+      hive.state = HiveState.RECOVERY;
+    }
+
+    if (count > 0 && hive.state === HiveState.RECOVERY) {
+      hive.state = HiveState.GROWTH;
+    }
+
     hive.roleCount = roleCount;
   }
 

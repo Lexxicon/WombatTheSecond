@@ -18,6 +18,7 @@ export class Miner implements Role<MinerMemory> {
 
   public create(spawn: StructureSpawn): string | undefined {
     let size = spawn.room.energyAvailable / (BODYPART_COST[WORK] + BODYPART_COST[MOVE] + BODYPART_COST[CARRY]);
+    size = Math.floor(size);
     const body: BodyPartConstant[] = [];
     while (size > 0) {
       size--;

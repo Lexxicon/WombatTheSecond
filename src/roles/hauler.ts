@@ -19,6 +19,7 @@ export class Hauler implements Role<HaulerMemory> {
 
   public create(spawn: StructureSpawn): string | undefined {
     let size = Math.min(spawn.room.energyAvailable / (BODYPART_COST[MOVE] + BODYPART_COST[CARRY]), 10);
+    size = Math.floor(size);
     const body: BodyPartConstant[] = [];
     while (size > 0) {
       size--;
@@ -38,6 +39,9 @@ export class Hauler implements Role<HaulerMemory> {
   public run(creep: Creep, memory: HaulerMemory, hive: Hive): void {
     if (memory.destination === undefined) {
       memory.destination = this.findDestination(creep, memory, hive);
+    }
+    if (memory.destination === undefined) {
+      return;
     }
 
     const pos = new RoomPosition(memory.destination.x, memory.destination.y, memory.destination.roomName);
@@ -73,7 +77,9 @@ export class Hauler implements Role<HaulerMemory> {
     }
   }
 
-  private findDestination(creep: Creep, memory: HaulerMemory, hive: Hive): { x: number, y: number, roomName: string } {
+  private findDestination(creep: Creep, memory: HaulerMemory, hive: Hive): {
+    x: number, y: number, roomName: string
+  } | undefined {
     if (memory.state === State.PICKUP) {
       const found = hive.harvestSpots
         .map((f) => f.lookFor(LOOK_STRUCTURES)[0])
@@ -87,6 +93,9 @@ export class Hauler implements Role<HaulerMemory> {
       found.push(...piles);
       const tomb = creep.room.find(FIND_TOMBSTONES).map((f) => ({ amount: f.store.energy, pos: f.pos }));
       found.push(...tomb);
+      if (found.length === 0) {
+        return undefined;
+      }
       return found.reduce((a, b) => a.amount > b.amount ? a : b).pos;
     }
 

@@ -21,6 +21,7 @@ export class Extractor implements Role<ExtractorMemory> {
 
   public create(spawn: StructureSpawn): string | undefined {
     let size = spawn.room.energyAvailable / (BODYPART_COST[WORK] * 2 + BODYPART_COST[MOVE]);
+    size = Math.floor(size);
     size = Math.min(size, 7);
     const body: BodyPartConstant[] = [];
     while (size > 0) {
