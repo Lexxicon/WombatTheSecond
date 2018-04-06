@@ -1,11 +1,8 @@
 import { BUILD_TIME, REVISION } from "./build_info";
 import { RoomManager } from "./managers/RoomManager";
 import { Tower } from "./managers/Tower";
-<<<<<<< HEAD
-=======
 import "./prototypes/Creep";
 import "./prototypes/RoomObject";
->>>>>>> c30b479b3db89aa18aa772c1bddb60bd27395a4c
 import { Extractor } from "./roles/extractor";
 import { Hauler } from "./roles/hauler";
 import { Miner } from "./roles/miner";
